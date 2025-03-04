@@ -1,0 +1,106 @@
+import 'dart:io';
+import '../widgets/taskitem.dart';
+import 'package:path/path.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+//import 'package:wrk/main.dart';
+//import 'package:sqflite_common_ffi';
+
+
+class DatabaseService{
+  static Database? _db;
+  static final DatabaseService instance = DatabaseService._constructor();
+
+  final String _tasksTableName = "tasks";
+  final String _tasksIdColumnName = "id";
+  final String _tasksContentColumnName = "content";
+  final String _tasksStatusColumnName = "status";
+  final String _tasksXpColumnName = "xp";
+
+  DatabaseService._constructor();
+
+  Future<Database> get database async {
+    //If db exists, just give it back
+    if(_db != null) return _db!;
+
+    //If not, use the function that creates db
+    _db = await getDatabase();
+    return _db!;
+  }
+
+
+//DB creation function.
+  Future<Database> getDatabase() async{
+
+    //Desktop initialization
+    if(Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+    {
+      //Only for desktop
+      sqfliteFfiInit();
+      //Only for desktop
+      databaseFactory = databaseFactoryFfi;
+    }
+    
+
+
+
+    final databaseDirPath = await getDatabasesPath();
+    final databasePath = join(databaseDirPath, "master_db.db");
+
+
+    final database = await databaseFactory.openDatabase(
+      databasePath,//Open a new db in this path
+      options: OpenDatabaseOptions( //With these options
+        onCreate: (db, version){
+        //SQL comand to create db
+        db.execute('''
+        CREATE TABLE $_tasksTableName (
+          $_tasksIdColumnName INTEGER PRIMARY KEY,
+          $_tasksContentColumnName TEXT NOT NULL,
+          $_tasksStatusColumnName INTEGER NOT NULL,
+          $_tasksXpColumnName INTEGER NOT NULL
+        )
+        ''');
+        },
+        version: 1,),
+      );
+    //Gives the db to the database getter function, to use everywhere in the project!
+    return database; 
+  }
+
+  void addTask(String content, int xp) async{
+    final db = await database; //Getting a refference to the DB
+    await db.insert(//Just an insert function!
+      _tasksTableName, {
+        _tasksContentColumnName: content, //The name of the task
+        _tasksXpColumnName: xp,  //XP
+        _tasksStatusColumnName: 0 //Status
+      });
+  }
+
+
+
+  Future<List<TaskData>> getTasks() async{
+    final db = await database;
+
+    final List<Map<String, Object?>> taskMaps = await db.query(_tasksTableName);
+
+
+    return taskMaps.map((task) => TaskData(
+      id: task[_tasksIdColumnName] as int,
+      name: task[_tasksContentColumnName] as String,
+      xp: task[_tasksXpColumnName] as int,
+      status: task[_tasksStatusColumnName] as int,
+    )).toList();
+  }
+
+  Future<void> deleteTask(int id) async{
+    final db = await database;
+
+    await db.delete(
+      _tasksTableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+}
