@@ -87,19 +87,30 @@ class DatabaseService{
 
     return taskMaps.map((task) => TaskData(
       id: task[_tasksIdColumnName] as int,
-      name: task[_tasksContentColumnName] as String,
+      content: task[_tasksContentColumnName] as String,
       xp: task[_tasksXpColumnName] as int,
       status: task[_tasksStatusColumnName] as int,
     )).toList();
   }
 
-  Future<void> deleteTask(int id) async{
+  Future<void> deleteTask(TaskData task) async{
     final db = await database;
 
     await db.delete(
       _tasksTableName,
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [task.id],
+    );
+  }
+
+  Future<void> updateTask(TaskData task) async{
+    final db = await database;
+
+    await db.update(
+      _tasksTableName,
+      task.toMap(),
+      where: '$_tasksIdColumnName = ?',
+      whereArgs: [task.id],
     );
   }
 

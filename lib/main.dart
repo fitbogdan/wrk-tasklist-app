@@ -99,10 +99,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void updateReps(int repsDelta)
+  void updateReps()
   {
+    int repsDelta = 0;
+    for(final task in tasks){
+      if(task.status == 1){
+        repsDelta+=task.xp;
+      }
+    }
+
+
     setState(() {
-      reps+=repsDelta;
+      reps=repsDelta;
     });
   }
 
@@ -153,43 +161,46 @@ class _MyHomePageState extends State<MyHomePage> {
             
 
             Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                    for(final task in tasks)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TaskItem(
-                          id: task.id,
-                          name: task.name, 
-                          xp: task.xp, 
-                          isChecked: task.status,
-                          onToggle:(repsDelta, isChecked) {
-                            updateReps(repsDelta);
-                            task.status = isChecked;
-                          },
-
-
-                          //TODO: Sterge din vector dupa stergere din DB
-                          //TODO: FIX BUG!!!! Can ambele task-uri sunt apasate, se reseteaza aiurea
-                          onDelete:(id) async {
-                            _databaseService.deleteTask(id);
-                            setState(() {
-                              int index = tasks.indexWhere((task) => task.id == id);
-                              if(index!=-1)
-                              {
-                                tasks.removeAt(index);
-                              }
-                            });
-                            
-                            //loadTasks();
-                          },
-                          ),
-                        ],
-                      )
-                ],
-              ),
+              child: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index){
+                  final task = tasks[index];
+                  return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TaskItem(
+                    id: task.id,
+                    name: task.content, 
+                    xp: task.xp, 
+                    isChecked: task.status,
+                    onToggle:(isChecked) async {
+              
+                      setState(() {
+                        task.status = isChecked;  
+                      });
+                      
+                      _databaseService.updateTask(task);
+                      loadTasks();
+                      updateReps();
+                    },
+              
+              
+                    //TODO: Sterge din vector dupa stergere din DB
+                    //TODO: FIX BUG!!!! Can ambele task-uri sunt apasate, se reseteaza aiurea
+                    onDelete:(id) async {
+                      _databaseService.deleteTask(task);
+                      setState(() {
+                          tasks.removeAt(index);
+                      });
+                      //loadTasks();
+                      updateReps();
+                      
+                    },
+                    ),
+                  ],
+                  );
+                }
+                ),
             ),
 
             

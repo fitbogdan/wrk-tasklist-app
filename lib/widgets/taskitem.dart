@@ -4,20 +4,20 @@ import 'package:audioplayers/audioplayers.dart';
 
 class TaskData{
   final int id;
-  final String name;
+  final String content;
   final int xp;
   int status;
 
-  TaskData({required this.id, required this.name, required this.xp, required this.status});
+  TaskData({required this.id, required this.content, required this.xp, required this.status});
 
   Map<String, Object?> toMap(){
-    return {'id' : id, 'name' : name, 'xp' : xp, 'status' : status};
+    return {'id' : id, 'content' : content, 'xp' : xp, 'status' : status};
   }
 
   @override
   String toString()
   {
-    return 'Task{id: $id, name: $name, xp: $xp, status: $status}';
+    return 'Task{id: $id, content: $content, xp: $xp, status: $status}';
   }  
 
 }
@@ -27,7 +27,7 @@ class TaskItem extends StatefulWidget {
   final int xp;
   final int id;
   final int isChecked;
-  final Function(int, int) onToggle;
+  final Function(int) onToggle;
   final Function(int) onDelete;
   const TaskItem({
     super.key,
@@ -92,11 +92,15 @@ class _TaskItemState extends State<TaskItem> {
                 {
                   //playClickSound();
                 }
-                setState(() {
-                    isChecked = newBool ?? false;
-                });
+                //setState(() {
+                //    isChecked = newBool ?? false;
+                //});
 
-                widget.onToggle((isChecked ? widget.xp : -widget.xp), (isChecked ? 1 : 0));
+                setState(() {
+                  isChecked = newBool ?? false;  
+                });
+                
+                widget.onToggle((isChecked ? 1 : 0));
               },
             ),
 
@@ -118,13 +122,14 @@ class _TaskItemState extends State<TaskItem> {
 
 
             IconButton(onPressed: () => {
-                widget.onDelete(widget.id),
-                
-                widget.onToggle((isChecked ? -widget.xp : 0), (isChecked ? 1 : 0)),
-                
                 setState(() {
-                  isChecked = false;
+                  widget.onDelete(widget.id);
                 }),
+                
+                
+                /*setState(() {
+                  isChecked = false;
+                }),*/
 
                 
             }, 
