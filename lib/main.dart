@@ -1,8 +1,11 @@
+//import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
+import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'widgets/taskitem.dart';
 import 'package:wrk/services/database_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
+import 'dart:math';
 //import 'package:audioplayers/audioplayers.dart';
 //import 'package:flutter/services.dart';
 //import 'package:http/http.dart' as http;
@@ -78,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //TODO: GLOBALIZE
   int reps = 0;
   int last = 8;
+  int repsTemp = 0;
   // ignore: unused_field
   String? _task;
   int? _xp;
@@ -98,6 +102,13 @@ class _MyHomePageState extends State<MyHomePage> {
       tasks = dbTasks;
     });
   }
+  //ONLY FOR DEV REASONS, REMOVE FOR PRODUCTION!!!
+  Future<void> genTask() async{
+    String name = WordPair.random().toString();
+    int xp = Random.secure().nextInt(20);
+    _databaseService.addTask(name, xp);
+    loadTasks();
+  }
 
   void updateReps()
   {
@@ -117,7 +128,16 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: _addTaskButton(),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          _addTaskButton(),
+          SizedBox(width: 10),
+          printButton(),
+          SizedBox(width: 10),
+          randomTaskButton(),
+        ],
+      ),
       body: Center(
         child: Column(
           //mainAxisSize: MainAxisSize.min,
@@ -137,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Opacity(
-                  opacity: 0.7,  
+                  opacity: 1,  
                   child: Text(
                   
                   "Reps Today: $reps", 
@@ -145,11 +165,73 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   )
                   ),
+                  SizedBox(width: 5),
+                  FloatingActionButton.small(onPressed:() {
+                    showDialog(context: context, builder:(_) => 
+                    AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        ),
+                      title: const Text("Edit reps"),
+
+
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextField(
+                            onChanged: (value) {
+
+                              int? nmbr = int.tryParse(value);
+                              if(nmbr != null){
+                                setState(() {
+                                    repsTemp = nmbr;
+                                });
+                              }
+                              //TODO: Make it more smooth
+                              else{
+                                value = '0';
+
+                                //TODO: Decorate the ERROR message dialog for when entering a wrong input
+                                showDialog(context: context, builder: (_) => AlertDialog(content: Text("Enter a number!")));
+                              }
+                              
+                                
+                            },
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                              hintText: "Rep ammount...",
+                              
+                            ),
+                          ),
+
+                          MaterialButton(onPressed: () => setState(() {
+                            if(repsTemp!=null){
+                              reps = repsTemp;
+                            }
+                          }))
+
+                          ],
+                        ),
+                    ));
+                  },
+                  backgroundColor: (last > reps ? Colors.red : Colors.green),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20), // Adjust for desired roundness
+                    ),
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                    ),
+                  
+                  ),
+                  
                     
                     
                     SizedBox(width: 400),
 
-                  FloatingActionButton(onPressed:() => print(tasks)),
+                  
+
+                  
 
 
                   Opacity(
@@ -211,6 +293,21 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  FloatingActionButton randomTaskButton() {
+    return FloatingActionButton(
+                  backgroundColor: Colors.red,
+                  onPressed:() => genTask(),
+                  child: Icon(Icons.bug_report),
+                );
+  }
+
+  FloatingActionButton printButton() {
+    return FloatingActionButton(
+                  onPressed:() => print(tasks),
+                  child: Icon(Icons.keyboard),
+                );
+  }
+
 
   Widget _addTaskButton()
   {
@@ -223,10 +320,14 @@ class _MyHomePageState extends State<MyHomePage> {
             barrierColor: Color.fromRGBO(0, 0, 0, 0.5),
             context: context, 
             builder: (_) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                ),
               backgroundColor: Color.fromRGBO(255, 255, 255, 1),
               title: const Text("Add Task"),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
+                
                 children: [
                     Row(
                       mainAxisSize: MainAxisSize.min,
