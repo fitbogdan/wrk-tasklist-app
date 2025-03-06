@@ -82,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String? _task;
   int? _xp;
 
-  static List<TaskData> tasks = [];
+  List<TaskData> tasks = [];
 
   
 
@@ -164,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ListView.builder(
                 itemCount: tasks.length,
                 itemBuilder: (context, index){
-                  final task = tasks[index];
+                  var task = tasks[index];
                   return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -22,13 +22,15 @@ class TaskData{
 
 }
 
-class TaskItem extends StatefulWidget {
+class TaskItem extends StatelessWidget {
   final String name;
   final int xp;
   final int id;
   final int isChecked;
   final Function(int) onToggle;
   final Function(int) onDelete;
+
+
   const TaskItem({
     super.key,
     required this.id,
@@ -39,22 +41,17 @@ class TaskItem extends StatefulWidget {
     required this.onDelete,
   });
 
-  @override
-  State<TaskItem> createState() => _TaskItemState();
-}
-
-class _TaskItemState extends State<TaskItem> {
-  late bool isChecked;
+  //late bool isChecked;
 
   
 
-  @override
+  /*@override
   void initState()
   {
     super.initState();
     isChecked = (widget.isChecked == 0 ? false : true);
   }
-
+  */
   void playClickSound() async{
     await AudioPlayer().play(AssetSource('sounds/click2.mp3'));
   }
@@ -85,28 +82,21 @@ class _TaskItemState extends State<TaskItem> {
           children: [
 
             Checkbox(
-              value: isChecked,
+              value: (isChecked == 1 ? true : false),
               activeColor: Colors.green,
               onChanged: (newBool){
                 if(newBool == true)
                 {
                   //playClickSound();
                 }
-                //setState(() {
-                //    isChecked = newBool ?? false;
-                //});
-
-                setState(() {
-                  isChecked = newBool ?? false;  
-                });
                 
-                widget.onToggle((isChecked ? 1 : 0));
+                onToggle(newBool == true ? 1 : 0);
               },
             ),
 
             Expanded(
               child: Text(
-                widget.name,
+                name,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
                 softWrap: false,
@@ -117,21 +107,12 @@ class _TaskItemState extends State<TaskItem> {
 
 
 
-            Text("${widget.xp} r", style: TextStyle(color: Colors.green),),
+            Text("$xp r", style: TextStyle(color: Colors.green),),
 
 
 
             IconButton(onPressed: () => {
-                setState(() {
-                  widget.onDelete(widget.id);
-                }),
-                
-                
-                /*setState(() {
-                  isChecked = false;
-                }),*/
-
-                
+                onDelete(id),  
             }, 
             icon: Icon(
               Icons.delete,
