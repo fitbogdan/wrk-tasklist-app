@@ -61,6 +61,7 @@ class TaskItem extends StatelessWidget {
 
 
     return Container(
+    //TODO: Make this sized after screen
     width: 573,
     height: 76,
     margin: EdgeInsets.all(10),
@@ -87,7 +88,9 @@ class TaskItem extends StatelessWidget {
               onChanged: (newBool){
                 if(newBool == true)
                 {
-                  //playClickSound();
+
+                  //TODO: Different click sounds for each operation
+                  playClickSound();
                 }
                 
                 onToggle(newBool == true ? 1 : 0);
@@ -114,6 +117,8 @@ class TaskItem extends StatelessWidget {
             IconButton(onPressed: () => {
                 onDelete(id),  
             }, 
+
+            //TODO: Make sized after screen
             icon: Icon(
               Icons.delete,
               size: 20,

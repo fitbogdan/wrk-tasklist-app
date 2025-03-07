@@ -1,5 +1,6 @@
 //import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'widgets/taskitem.dart';
 import 'package:wrk/services/database_service.dart';
@@ -16,11 +17,11 @@ import 'dart:math';
 
 
 void main() {
+
+  //ONLY for desktop.
   if(Platform.isWindows || Platform.isMacOS || Platform.isLinux)
     {
-      //Only for desktop
       sqfliteFfiInit();
-      //Only for desktop
       databaseFactory = databaseFactoryFfi;
     }
   runApp(const MyApp());
@@ -33,10 +34,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
+      //TODO: Centralize all style information here.
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(183, 48, 48, 48)),
           scaffoldBackgroundColor: Colors.white,
           textTheme: TextTheme(
+          //TODO: Make sized after screen
           headlineLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
           bodyMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
@@ -46,9 +50,6 @@ class MyApp extends StatelessWidget {
           selectionHandleColor: Colors.black,
         )
       ),
-      /*theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),*/
       home: const MyHomePage(),
     );
   }
@@ -67,6 +68,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
 
   static TextStyle heading = TextStyle(fontSize: 40, fontWeight: FontWeight.bold);
   static TextStyle smallwords = TextStyle(fontSize: 25, fontWeight: FontWeight.bold);
@@ -112,6 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
     loadTasks();
   }
 
+  //Adds to the total number of reps, for today.
   void updateReps()
   {
     int repsDelta = 0;
@@ -120,8 +123,6 @@ class _MyHomePageState extends State<MyHomePage> {
         repsDelta+=task.xp;
       }
     }
-
-
     setState(() {
       reps=repsDelta;
     });
@@ -134,22 +135,32 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           _addTaskButton(),
+
+          
           SizedBox(width: 10),
+          //DEV MODE ONLY:
           printButton(),
           SizedBox(width: 10),
+          //DEV MODE ONLY:
           randomTaskButton(),
+          SizedBox(width: 10),
+          //DEV MODE ONLY:
+          FloatingActionButton(onPressed:() {
+            double width = MediaQuery.sizeOf(context).width;
+            double height = MediaQuery.sizeOf(context).height;
+
+            print("Width: $width;  Height: $height; ");
+          },
+          backgroundColor: Colors.deepPurple,
+          child: Icon(Icons.laptop),
+          )
         ],
       ),
       body: Center(
         child: Column(
-          //mainAxisSize: MainAxisSize.min,
-          //mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: 10),
-            Text(
-            "WRK",
-            style: heading
-            ),
+            Text("WRK", style: heading),
 
             SizedBox(height: 20),
 
@@ -168,114 +179,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   )
                   ),
                   SizedBox(width: 5),
-                  FloatingActionButton.small(onPressed:() {
-                    showDialog(context: context, builder:(_) => 
-                    AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        ),
-                      title: const Text("Edit reps"),
+                  editRepsButton(context),
 
-
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextField(
-                            onChanged: (value) {
-
-                              int? nmbr = int.tryParse(value);
-                              if(nmbr != null){
-                                //setState(() {
-                                    repsTemp = nmbr;
-                                //});
-                              }
-                              else{
-                                repsTemp = -1;
-                              }
-                              
-                                
-                            },
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                              hintText: "Rep ammount...",
-                              
-                            ),
-                          ),
-                          SizedBox(height: 10),
-
-                          MaterialButton(
-                            color: Colors.green,
-                            child: Text(
-                              "Edit reps",
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                              ),
-                            onPressed:() {
-                            if(repsTemp!=-1){
-                                setState(() {
-                                reps = repsTemp;
-                                repsTemp = -1;
-                                });
-                            }
-
-                            else{
-                              showDialog(context: context, builder: (BuildContext dialogContext) {
-                                
-                                Future.delayed(Duration(seconds: 1), () {
-                                  if(dialogContext.mounted){ //In case someone closes the window before the 1 second runs out
-                                    Navigator.of(dialogContext).pop();
-                                  }
-                                  
-                                });
-
-                                return Opacity(
-                                        opacity: 0.9,
-                                        child: AlertDialog(
-                                          contentTextStyle: dialogError,
-                                          content: Text(
-                                            "Enter a number!",
-                                            textAlign: TextAlign.center,
-                                            ),
-                                          shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  ),
-                                          ),
-                                );
-                              });
-                              
-                              
-                            }
-                            
-
-                          },)
-
-                          ],
-                        ),
-                    ));
-                  },
-                  backgroundColor: (last > reps ? Colors.red : Colors.green),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20), // Adjust for desired roundness
-                    ),
-                  child: Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                    ),
-                  
-                  ),
-                  
-                    
-                    
-                    SizedBox(width: 400),
-
-                  
-
-                  
+                  //TODO: Make sized after screen
+                  //It might be too big for a smaller display.
+                  SizedBox(width: 400),
 
 
                   Opacity(
-                  opacity: 0.7,  
+                  opacity: 1,  
                   child: Text("To beat: $last", style: smallwords)
                   ),
                 ]),
@@ -292,42 +204,121 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TaskItem(
-                    id: task.id,
-                    name: task.content, 
-                    xp: task.xp, 
-                    isChecked: task.status,
-                    onToggle:(isChecked) async {
-              
-                      setState(() {
-                        task.status = isChecked;  
-                      });
-                      
-                      _databaseService.updateTask(task);
-                      loadTasks();
-                      updateReps();
-                    },
-                    onDelete:(id) async {
-                      _databaseService.deleteTask(task);
-                      setState(() {
-                          tasks.removeAt(index);
-                      });
-                      //loadTasks();
-                      updateReps();
-                      
-                    },
-                    ),
-                  ],
+                      id: task.id,
+                      name: task.content, 
+                      xp: task.xp, 
+                      isChecked: task.status,
+                      onToggle:(isChecked) async {
+                
+                        setState(() {
+                          task.status = isChecked;  
+                        });
+                        
+                        _databaseService.updateTask(task);
+                        loadTasks();
+                        updateReps();},
+                      onDelete:(id) async {
+                        _databaseService.deleteTask(task);
+                        setState(() {
+                            tasks.removeAt(index);
+                        });
+                        updateReps();},
+                      ),],
                   );
-                }
-                ),
+                }),
             ),
-
-            
-            
-
           ],)
       )
     );
+  }
+
+  FloatingActionButton editRepsButton(BuildContext context) {
+    return FloatingActionButton.small(onPressed:() {
+                  showDialog(context: context, builder:(_) => 
+                  AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      ),
+                    title: const Text("Edit reps"),
+
+
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                          onChanged: (value) {
+
+                            int? nmbr = int.tryParse(value);
+                            if(nmbr != null){
+                              //setState(() {
+                                  repsTemp = nmbr;
+                              //});
+                            }
+                            else{
+                              repsTemp = -1;
+                            } 
+                          },
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            hintText: "Rep ammount...",
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        MaterialButton(
+                          color: Colors.green,
+                          child: Text(
+                            "Edit reps",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            ),
+                          onPressed:() {
+                          if(repsTemp!=-1){
+                              setState(() {
+                              reps = repsTemp;
+                              repsTemp = -1;
+                              });
+                          }
+                          else{
+                            errorMessage(context, "Enter a number!"); 
+                          }
+                        },)
+                        ],
+                      ),
+                  ));
+                },
+                backgroundColor: (last > reps ? Colors.red : Colors.green),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                  ),
+                );
+  }
+
+  Future<dynamic> errorMessage(BuildContext context, String message) {
+    return showDialog(context: context, builder: (BuildContext dialogContext) {
+      Future.delayed(Duration(seconds: 1), () {
+        if(dialogContext.mounted){ //In case someone closes the window before the 1 second runs out
+          Navigator.of(dialogContext).pop();
+        }
+      });
+      return Opacity(
+              opacity: 0.9,
+              child: AlertDialog(
+                contentTextStyle: dialogError,
+                content: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  ),
+                shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        ),
+                ),
+      );
+    });
   }
 
   FloatingActionButton randomTaskButton() {
@@ -386,8 +377,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         SizedBox(width: 10,),
 
                         SizedBox(
+                          //TODO: Make sized after screen
                           width: 60,
-                          //height: 30,
                           child: TextField(
                             keyboardType: TextInputType.number,
                             onChanged:(value) {
@@ -421,34 +412,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           return;
                         }
 
-                        if(xpTemp == -1)
-                        {
-                          showDialog(context: context, builder: (dialogContext) {
-                                    
-                                    Future.delayed(Duration(seconds: 1), () {
-                                      if(dialogContext.mounted){ //In case someone closes the window before the 1 second runs out
-                                        Navigator.of(dialogContext).pop();
-                                      }});
-
-                                    
-                                    return Opacity(
-                                      opacity: 0.9,
-                                      child:AlertDialog(
-                                              contentTextStyle: dialogError,
-                                              content: Text(
-                                                "Enter a number!",
-                                                textAlign: TextAlign.center,
-                                                ),
-                                              shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                      ),
-                                              ),
-                                      );
-                                    
-                                    });
+                        if(xpTemp == -1){
+                          errorMessage(context, "Enter a number!");
                         }
-                        else{
 
+                        else{
                           setState(() {
                             _xp = xpTemp;
                             xpTemp = -1;
