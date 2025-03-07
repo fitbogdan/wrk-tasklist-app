@@ -69,9 +69,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   static TextStyle heading = TextStyle(fontSize: 40, fontWeight: FontWeight.bold);
-  static TextStyle smallwords = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
-  static TextStyle repsBad = TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red);
-  static TextStyle repsGood = TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green);
+  static TextStyle smallwords = TextStyle(fontSize: 25, fontWeight: FontWeight.bold);
+  static TextStyle repsBad = TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.red);
+  static TextStyle repsGood = TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.green);
+  static TextStyle dialogError = TextStyle(fontWeight: FontWeight.w700,fontSize: 20, color: Colors.black);
 
   // ignore: unused_field
   final DatabaseService _databaseService = DatabaseService.instance;
@@ -81,10 +82,11 @@ class _MyHomePageState extends State<MyHomePage> {
   //TODO: GLOBALIZE
   int reps = 0;
   int last = 8;
-  int repsTemp = 0;
+  int repsTemp = -1;
   // ignore: unused_field
   String? _task;
   int? _xp;
+  int xpTemp = -1;
 
   List<TaskData> tasks = [];
 
@@ -183,16 +185,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
                               int? nmbr = int.tryParse(value);
                               if(nmbr != null){
-                                setState(() {
+                                //setState(() {
                                     repsTemp = nmbr;
-                                });
+                                //});
                               }
-                              //TODO: Make it more smooth
                               else{
-                                value = '0';
-
-                                //TODO: Decorate the ERROR message dialog for when entering a wrong input
-                                showDialog(context: context, builder: (_) => AlertDialog(content: Text("Enter a number!")));
+                                repsTemp = -1;
                               }
                               
                                 
@@ -203,12 +201,54 @@ class _MyHomePageState extends State<MyHomePage> {
                               
                             ),
                           ),
+                          SizedBox(height: 10),
 
-                          MaterialButton(onPressed: () => setState(() {
-                            if(repsTemp!=null){
-                              reps = repsTemp;
+                          MaterialButton(
+                            color: Colors.green,
+                            child: Text(
+                              "Edit reps",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                              ),
+                            onPressed:() {
+                            if(repsTemp!=-1){
+                                setState(() {
+                                reps = repsTemp;
+                                repsTemp = -1;
+                                });
                             }
-                          }))
+
+                            else{
+                              showDialog(context: context, builder: (BuildContext dialogContext) {
+                                
+                                Future.delayed(Duration(seconds: 1), () {
+                                  if(dialogContext.mounted){ //In case someone closes the window before the 1 second runs out
+                                    Navigator.of(dialogContext).pop();
+                                  }
+                                  
+                                });
+
+                                return Opacity(
+                                        opacity: 0.9,
+                                        child: AlertDialog(
+                                          contentTextStyle: dialogError,
+                                          content: Text(
+                                            "Enter a number!",
+                                            textAlign: TextAlign.center,
+                                            ),
+                                          shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  ),
+                                          ),
+                                );
+                              });
+                              
+                              
+                            }
+                            
+
+                          },)
 
                           ],
                         ),
@@ -241,7 +281,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ]),
             ),
             
-
+            SizedBox(height: 10,),
+  
             Flexible(
               child: ListView.builder(
                 itemCount: tasks.length,
@@ -265,10 +306,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       loadTasks();
                       updateReps();
                     },
-              
-              
-                    //TODO: Sterge din vector dupa stergere din DB
-                    //TODO: FIX BUG!!!! Can ambele task-uri sunt apasate, se reseteaza aiurea
                     onDelete:(id) async {
                       _databaseService.deleteTask(task);
                       setState(() {
@@ -297,12 +334,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return FloatingActionButton(
                   backgroundColor: Colors.red,
                   onPressed:() => genTask(),
-                  child: Icon(Icons.bug_report),
+                  child: Icon(Icons.add),
                 );
   }
 
   FloatingActionButton printButton() {
     return FloatingActionButton(
+                  // ignore: avoid_print
                   onPressed:() => print(tasks),
                   child: Icon(Icons.keyboard),
                 );
@@ -356,16 +394,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               
                                 int? number = int.tryParse(value);
 
-                                if(number!=null) 
-                                {
-                                  setState(() {
-                                    _xp = number;  
-                                  });
+                                if(number!=null) {
+                                    xpTemp = number;  
                                 }
-                                else
-                                {
-                                  //TODO: Decorate the ERROR message dialog for when entering a wrong input
-                                  showDialog(context: context, builder: (_) => AlertDialog(content: Text("Enter a number!")));
+                                else{
+                                  xpTemp = -1;
                                 }
                               
                             },
@@ -387,14 +420,49 @@ class _MyHomePageState extends State<MyHomePage> {
                         if(_task == null || _task ==""){
                           return;
                         }
-                          
-                        _databaseService.addTask(_task!, _xp!);
 
-                        setState(() {
-                          _task = null;
-                          Navigator.pop(context);
-                          loadTasks();
-                        });
+                        if(xpTemp == -1)
+                        {
+                          showDialog(context: context, builder: (dialogContext) {
+                                    
+                                    Future.delayed(Duration(seconds: 1), () {
+                                      if(dialogContext.mounted){ //In case someone closes the window before the 1 second runs out
+                                        Navigator.of(dialogContext).pop();
+                                      }});
+
+                                    
+                                    return Opacity(
+                                      opacity: 0.9,
+                                      child:AlertDialog(
+                                              contentTextStyle: dialogError,
+                                              content: Text(
+                                                "Enter a number!",
+                                                textAlign: TextAlign.center,
+                                                ),
+                                              shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      ),
+                                              ),
+                                      );
+                                    
+                                    });
+                        }
+                        else{
+
+                          setState(() {
+                            _xp = xpTemp;
+                            xpTemp = -1;
+                          });
+
+                          _databaseService.addTask(_task!, _xp!);
+
+                          setState(() {
+                            _task = null;
+                            Navigator.pop(context);
+                            loadTasks();
+                          });
+                        }
+                        
                       },
                       child: Text(
                         "Done",
