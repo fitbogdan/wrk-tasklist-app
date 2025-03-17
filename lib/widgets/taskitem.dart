@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-
+import 'package:wrk/services/sound_service.dart';
 
 class TaskData{
   final int id;
@@ -41,29 +41,15 @@ class TaskItem extends StatelessWidget {
     required this.onDelete,
   });
 
-  //late bool isChecked;
-
-  
-
-  /*@override
-  void initState()
-  {
-    super.initState();
-    isChecked = (widget.isChecked == 0 ? false : true);
-  }
-  */
-  void playClickSound() async{
-    await AudioPlayer().play(AssetSource('sounds/click2.mp3'));
-  }
-
   @override
   Widget build(BuildContext context) {
 
-
+    double width = MediaQuery.sizeOf(context).width;
+    double height = MediaQuery.sizeOf(context).height;
     return Container(
     //TODO: Make this sized after screen
-    width: 573,
-    height: 76,
+    width: (573/width) * width,
+    height: (76/height) * height,
     margin: EdgeInsets.all(10),
     //padding: EdgeInsets.all(20),
     decoration: BoxDecoration(
@@ -86,12 +72,7 @@ class TaskItem extends StatelessWidget {
               value: (isChecked == 1 ? true : false),
               activeColor: Colors.green,
               onChanged: (newBool){
-                if(newBool == true)
-                {
-
-                  //TODO: Different click sounds for each operation
                   playClickSound();
-                }
                 
                 onToggle(newBool == true ? 1 : 0);
               },
@@ -115,7 +96,8 @@ class TaskItem extends StatelessWidget {
 
 
             IconButton(onPressed: () => {
-                onDelete(id),  
+                onDelete(id),
+                playPopSound(),
             }, 
 
             //TODO: Make sized after screen

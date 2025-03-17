@@ -1,13 +1,12 @@
 //import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
 import 'package:english_words/english_words.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'widgets/taskitem.dart';
 import 'package:wrk/services/database_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 import 'dart:math';
-//import 'package:audioplayers/audioplayers.dart';
+import 'package:wrk/services/sound_service.dart';
 //import 'package:flutter/services.dart';
 //import 'package:http/http.dart' as http;
 //import 'dart:convert';
@@ -130,32 +129,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.sizeOf(context).width;
+    double height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           _addTaskButton(),
-
-          
+//------------------DEV MODE ONLY:----------------------------------------------
           SizedBox(width: 10),
-          //DEV MODE ONLY:
-          printButton(),
+          Text(
+            "Dev tools:",
+            style: TextStyle(fontSize: 15),
+          ),
           SizedBox(width: 10),
-          //DEV MODE ONLY:
-          randomTaskButton(),
-          SizedBox(width: 10),
-          //DEV MODE ONLY:
+          printButton(), SizedBox(width: 10), randomTaskButton(), SizedBox(width: 10),
           FloatingActionButton(onPressed:() {
-            double width = MediaQuery.sizeOf(context).width;
-            double height = MediaQuery.sizeOf(context).height;
-
             print("Width: $width;  Height: $height; ");
           },
           backgroundColor: Colors.deepPurple,
           child: Icon(Icons.laptop),
           )
-        ],
-      ),
+//----------------------------Dev end----------------------------------------------
+],
+  ),
       body: Center(
         child: Column(
           children: [
@@ -324,7 +321,10 @@ class _MyHomePageState extends State<MyHomePage> {
   FloatingActionButton randomTaskButton() {
     return FloatingActionButton(
                   backgroundColor: Colors.red,
-                  onPressed:() => genTask(),
+                  onPressed:() {
+                    genTask();
+                    playPopSound();
+                    },
                   child: Icon(Icons.add),
                 );
   }
@@ -429,6 +429,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             Navigator.pop(context);
                             loadTasks();
                           });
+
+                          playPopSound();
                         }
                         
                       },
