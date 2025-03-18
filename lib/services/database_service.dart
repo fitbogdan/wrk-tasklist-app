@@ -45,6 +45,7 @@ class DatabaseService{
 
     final databaseDirPath = await getDatabasesPath();
     final databasePath = join(databaseDirPath, "master_db.db");
+    //print(databasePath);
 
 
     final database = await databaseFactory.openDatabase(
@@ -115,3 +116,4 @@ class DatabaseService{
   }
 
 }
+

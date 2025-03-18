@@ -185,7 +185,81 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   Opacity(
                   opacity: 1,  
-                  child: Text("To beat: $last", style: smallwords)
+                  child: MaterialButton(
+                    onPressed: () {
+                      //TODO: Make this AlertDialog re-usable.
+                      
+                      showDialog(context: context, builder: (context) => StatefulBuilder( //This is a stateful builder, so I can set actively update the reps in the window
+                        builder: (context, setDialogState){
+                            return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          ),
+                        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+                        title: Text("Reps to beat: $last"),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [ 
+                              SizedBox(
+                                    width: 250,
+                                    child: TextField(
+                                      keyboardType: TextInputType.number,
+                                      onChanged:(value) {
+                                          int? nr = int.tryParse(value);
+                                          if(nr != null){
+                                            xpTemp = nr;
+                                          }
+                                      },
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                        hintText: "Enter a number",
+                                      ),
+                                    ),
+                                  ),
+                              SizedBox(height: 10),
+
+                              MaterialButton(
+                                
+                                color: Colors.green,
+                                child: Text(
+                                  "Done",
+                                  style: TextStyle(color: Colors.white),
+                                  ),
+                                onPressed: (){
+                                  if(xpTemp <= -1){
+                                    errorMessage(context, "Enter a (positive) number!");
+                                    xpTemp = -1;
+                                  }
+                                  else{
+                                    setState(() {
+                                      last = xpTemp;
+                                      xpTemp = -1;
+                                    });
+
+                                    setDialogState(() {
+                                      last = last;
+                                    });
+                                  }
+                              }
+                              )
+
+                              /*Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  //minusButton(setDialogState),
+                                  SizedBox(width: 10),
+                                  //plusButton(setDialogState),
+                                ],
+                              )*/
+                            ],
+                          ),
+                        );
+                      }
+                        
+                      ));
+                    },
+                    child: Text("To beat: $last", style: smallwords)
+                    )
                   ),
                 ]),
             ),
@@ -227,6 +301,44 @@ class _MyHomePageState extends State<MyHomePage> {
           ],)
       )
     );
+  }
+
+  MaterialButton plusButton(StateSetter setDialogState) {
+    return MaterialButton(
+                                  color: Colors.green,
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 20.0,
+                                    color: Colors.white,
+                                    ),
+                                  onPressed:() {
+                                  playClickSound();
+                                  setDialogState(() {
+                                    last = last+1;
+                                  });
+                                  setState(() {
+                                    last = last;
+                                  });
+                                },);
+  }
+
+  MaterialButton minusButton(StateSetter setDialogState) {
+    return MaterialButton(
+                                  color: Colors.red,
+                                  child: Icon(
+                                    Icons.remove,
+                                    size: 20.0,
+                                    color: Colors.white,
+                                    ),
+                                  onPressed:() {
+                                  playClickSound();
+                                  setDialogState(() {
+                                    last = last-1;
+                                  });
+                                  setState(() {
+                                    last = last;
+                                  });
+                                },);
   }
 
   FloatingActionButton editRepsButton(BuildContext context) {
@@ -332,7 +444,9 @@ class _MyHomePageState extends State<MyHomePage> {
   FloatingActionButton printButton() {
     return FloatingActionButton(
                   // ignore: avoid_print
-                  onPressed:() => print(tasks),
+                  onPressed:() async {
+                    print(tasks);
+                  },
                   child: Icon(Icons.keyboard),
                 );
   }

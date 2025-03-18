@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:wrk/services/sound_service.dart';
 
 class TaskData{
@@ -79,6 +78,7 @@ class TaskItem extends StatelessWidget {
             ),
 
             Expanded(
+              //TODO: Make this editable, like the to beat reps
               child: Text(
                 name,
                 overflow: TextOverflow.ellipsis,
