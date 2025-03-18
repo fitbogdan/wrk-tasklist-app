@@ -240,6 +240,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                       last = last;
                                     });
                                   }
+                                  playClickSound();
+                                  Navigator.pop(context);
                               }
                               )
 
@@ -389,8 +391,15 @@ class _MyHomePageState extends State<MyHomePage> {
                               });
                           }
                           else{
-                            errorMessage(context, "Enter a number!"); 
+                            setState(() {
+                              reps = 0;
+                            });
+                            //OR, could just leave the error
+                            
+                            //errorMessage(context, "Enter a number!"); 
                           }
+                          playClickSound();
+                          Navigator.pop(context);
                         },)
                         ],
                       ),
@@ -444,7 +453,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FloatingActionButton printButton() {
     return FloatingActionButton(
                   // ignore: avoid_print
-                  onPressed:() async {
+                  onPressed:() {
                     print(tasks);
                   },
                   child: Icon(Icons.keyboard),
