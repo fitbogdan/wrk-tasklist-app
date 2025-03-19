@@ -39,9 +39,9 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(183, 48, 48, 48)),
           scaffoldBackgroundColor: Colors.white,
           textTheme: TextTheme(
-          //TODO: Make sized after screen
           headlineLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
           bodyMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          bodySmall: TextStyle(fontSize: 13, fontWeight: FontWeight.normal),
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: Colors.black,
@@ -80,11 +80,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   
 
-  //TODO: GLOBALIZE
   int reps = 0;
   int last = 8;
   int repsTemp = -1;
-  // ignore: unused_field
   String? _task;
   int? _xp;
   int xpTemp = -1;
@@ -145,6 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(width: 10),
           printButton(), SizedBox(width: 10), randomTaskButton(), SizedBox(width: 10),
           FloatingActionButton(onPressed:() {
+            // ignore: avoid_print
             print("Width: $width;  Height: $height; ");
           },
           backgroundColor: Colors.deepPurple,
@@ -307,40 +306,40 @@ class _MyHomePageState extends State<MyHomePage> {
 
   MaterialButton plusButton(StateSetter setDialogState) {
     return MaterialButton(
-                                  color: Colors.green,
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 20.0,
-                                    color: Colors.white,
-                                    ),
-                                  onPressed:() {
-                                  playClickSound();
-                                  setDialogState(() {
-                                    last = last+1;
-                                  });
-                                  setState(() {
-                                    last = last;
-                                  });
-                                },);
+      color: Colors.green,
+      child: Icon(
+        Icons.add,
+        size: 20.0,
+        color: Colors.white,
+        ),
+      onPressed:() {
+      playClickSound();
+      setDialogState(() {
+        last = last+1;
+      });
+      setState(() {
+        last = last;
+      });
+    },);
   }
 
   MaterialButton minusButton(StateSetter setDialogState) {
     return MaterialButton(
-                                  color: Colors.red,
-                                  child: Icon(
-                                    Icons.remove,
-                                    size: 20.0,
-                                    color: Colors.white,
-                                    ),
-                                  onPressed:() {
-                                  playClickSound();
-                                  setDialogState(() {
-                                    last = last-1;
-                                  });
-                                  setState(() {
-                                    last = last;
-                                  });
-                                },);
+      color: Colors.red,
+      child: Icon(
+        Icons.remove,
+        size: 20.0,
+        color: Colors.white,
+        ),
+      onPressed:() {
+      playClickSound();
+      setDialogState(() {
+        last = last-1;
+      });
+      setState(() {
+        last = last;
+      });
+    },);
   }
 
   FloatingActionButton editRepsButton(BuildContext context) {
@@ -395,7 +394,6 @@ class _MyHomePageState extends State<MyHomePage> {
                               reps = 0;
                             });
                             //OR, could just leave the error
-                            
                             //errorMessage(context, "Enter a number!"); 
                           }
                           playClickSound();
@@ -454,6 +452,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return FloatingActionButton(
                   // ignore: avoid_print
                   onPressed:() {
+                    // ignore: avoid_print
                     print(tasks);
                   },
                   child: Icon(Icons.keyboard),
@@ -500,7 +499,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         SizedBox(width: 10,),
 
                         SizedBox(
-                          //TODO: Make sized after screen
                           width: 60,
                           child: TextField(
                             keyboardType: TextInputType.number,

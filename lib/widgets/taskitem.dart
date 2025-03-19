@@ -45,8 +45,9 @@ class TaskItem extends StatelessWidget {
 
     double width = MediaQuery.sizeOf(context).width;
     double height = MediaQuery.sizeOf(context).height;
+
+    //TODO: Return taskObject IF edit mode off, and editableTask if edit mode ON.
     return Container(
-    //TODO: Make this sized after screen
     width: (573/width) * width,
     height: (76/height) * height,
     margin: EdgeInsets.all(10),
@@ -63,49 +64,128 @@ class TaskItem extends StatelessWidget {
       child: 
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+            
+                Checkbox(
+                  value: (isChecked == 1 ? true : false),
+                  activeColor: Colors.green,
+                  onChanged: (newBool){
+                      playClickSound();
+                    
+                    onToggle(newBool == true ? 1 : 0);
+                  },
+                ),
+            
+            
+              MaterialButton(
+                onPressed: () {
+                  showDialog(context: context, builder: (_) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)
+                    ),
+                    backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+                    title: Text("Edit Task"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                  onChanged: (value){
+                                    //TODO
+                                  },
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                    hintText: "Name of task...",
+                                  ),
+                              )
+                            ),
 
-            Checkbox(
-              value: (isChecked == 1 ? true : false),
-              activeColor: Colors.green,
-              onChanged: (newBool){
-                  playClickSound();
+                            SizedBox(width: 10),
+
+                            SizedBox(
+                              width: 60,
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  //TODO
+                                },
+
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                  hintText: "XP...",
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(height: 30),
+                        MaterialButton(
+                          color: Colors.green,
+                          child: Text("Done", style: TextStyle(color: Colors.white),),
+                          onPressed: (){
+
+                        }
+                        ),
+                      ],
+                    ),
+                  ));
+                },
+
+                child: Expanded(
+                  child: Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                    softWrap: false,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+
                 
-                onToggle(newBool == true ? 1 : 0);
-              },
-            ),
+                  
+                  
+                
+                
+                ),
+                //TODO: Wrap in material button
+                Expanded(
 
-            Expanded(
-              //TODO: Make this editable, like the to beat reps
-              child: Text(
-                name,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-                softWrap: false,
-              ),
-            ),
-        
+                  child: Container(
+                    alignment: Alignment.centerRight,
+                    child: Text("$xp r", style: TextStyle(color: Colors.green),)
+                    )
+                  ),
+              
+                
+            
+            
+            
+                IconButton(onPressed: () => {
+                    onDelete(id),
+                    playPopSound(),
+                }, 
+                icon: Icon(
+                  Icons.delete,
+                  size: 20,
+                  ))
+            ],),
+            
+              
+            
+            
+            
+            
+            
 
-
-
-
-            Text("$xp r", style: TextStyle(color: Colors.green),),
-
-
-
-            IconButton(onPressed: () => {
-                onDelete(id),
-                playPopSound(),
-            }, 
-
-            //TODO: Make sized after screen
-            icon: Icon(
-              Icons.delete,
-              size: 20,
-              ))
-        ],),
+          ],
+        ),
       ),
     );
   }
