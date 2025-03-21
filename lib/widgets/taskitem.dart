@@ -46,15 +46,15 @@ class TaskItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    //double width = MediaQuery.sizeOf(context).width;
-    //double height = MediaQuery.sizeOf(context).height;
+    double width = MediaQuery.sizeOf(context).width;
+    double height = MediaQuery.sizeOf(context).height;
 
     String newName = name;
     int newXp = xp;
 
     return Container(
-    width: 573,
-    height: 76,
+    width: (width*0.23 < 500 ? 500 : width * 0.23), //OLD: 576
+    height: (height*0.06 < 76 ? 76 : height*0.06), //OLD: 76
     margin: EdgeInsets.all(10),
     //padding: EdgeInsets.all(20),
     decoration: BoxDecoration(
@@ -95,9 +95,8 @@ class TaskItem extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      //TODO: Make this and whole task size work toghether
-                      width: 400,
+                    SizedBox(
+                      width: (width*0.15 < 300 ? 300 : width*0.15),
                       child: Text(
                         name,
                         textAlign: TextAlign.left,

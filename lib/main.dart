@@ -195,9 +195,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   SizedBox(width: 5),
                   editRepsButton(context),
 
-                  //TODO: Make sized after screen
-                  //It might be too big for a smaller display.
-                  SizedBox(width: 400),
+                  
+                  SizedBox(width: (width*0.14 < 500 ? 300 : width*0.14)),
 
 
                   Opacity(
@@ -309,13 +308,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
 
 
-                        //TODO: FIX THIS
+
                         onEdit: (newTask) async {
                           
                           //_databaseService.updateTaskName(newTask);
                           _databaseService.updateTask(newTask);
-
-                          print(newTask.xp);
 
                           setState(() {
                             task = newTask;
