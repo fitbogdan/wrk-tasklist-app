@@ -107,7 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       tasks = dbTasks;
     });
-
+    //Counts all checked tasks, to give number of reps completed today, without having to save
+    updateReps();
   }
 
   Future<void> getLast() async{
@@ -294,14 +295,44 @@ class _MyHomePageState extends State<MyHomePage> {
                         
                         _databaseService.updateTask(task);
                         loadTasks();
-                        updateReps();},
+                        updateReps();
+                        },
+
+
+
                       onDelete:(id) async {
                         _databaseService.deleteTask(task);
                         setState(() {
                             tasks.removeAt(index);
                         });
-                        updateReps();},
-                      ),],
+                        updateReps();
+                        },
+
+
+                        //TODO: FIX THIS
+                        onEdit: (newTask) async {
+                          
+                          //_databaseService.updateTaskName(newTask);
+                          _databaseService.updateTask(newTask);
+
+                          print(newTask.xp);
+
+                          setState(() {
+                            task = newTask;
+                            tasks[index] = newTask;
+                          });
+                          
+                          loadTasks();
+                          updateReps();
+                          
+                          
+
+                        }
+                      ),
+
+                      
+                      
+                      ],
                   );
                 }),
             ),

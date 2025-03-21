@@ -3,8 +3,8 @@ import 'package:wrk/services/sound_service.dart';
 
 class TaskData{
   final int id;
-  final String content;
-  final int xp;
+  String content;
+  int xp;
   int status;
 
   TaskData({required this.id, required this.content, required this.xp, required this.status});
@@ -28,7 +28,9 @@ class TaskItem extends StatelessWidget {
   final int isChecked;
   final Function(int) onToggle;
   final Function(int) onDelete;
+  final Function(TaskData) onEdit;
 
+  
 
   const TaskItem({
     super.key,
@@ -38,6 +40,7 @@ class TaskItem extends StatelessWidget {
     required this.isChecked,
     required this.onToggle,
     required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -46,7 +49,9 @@ class TaskItem extends StatelessWidget {
     double width = MediaQuery.sizeOf(context).width;
     double height = MediaQuery.sizeOf(context).height;
 
-    //TODO: Return taskObject IF edit mode off, and editableTask if edit mode ON.
+    String newName = '';
+    int newXp = 0;
+
     return Container(
     width: (573/width) * width,
     height: (76/height) * height,
@@ -84,58 +89,7 @@ class TaskItem extends StatelessWidget {
             
               MaterialButton(
                 onPressed: () {
-                  showDialog(context: context, builder: (_) => AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)
-                    ),
-                    backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-                    title: Text("Edit Task"),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                  onChanged: (value){
-                                    //TODO - get this from parent widget
-                                  },
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                    hintText: "Name of task...",
-                                  ),
-                              )
-                            ),
-
-                            SizedBox(width: 10),
-
-                            SizedBox(
-                              width: 60,
-                              child: TextField(
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  //TODO - get this from parent widget
-                                },
-
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                  hintText: "XP...",
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        SizedBox(height: 30),
-                        MaterialButton(
-                          color: Colors.green,
-                          child: Text("Done", style: TextStyle(color: Colors.white),),
-                          onPressed: (){
-
-                        }
-                        ),
-                      ],
-                    ),
-                  ));
+                  editTaskDialog(context, newName, newXp);
                 },
 
                 child: Row(
@@ -189,5 +143,82 @@ class TaskItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<dynamic> editTaskDialog(BuildContext context, String newName, int newXp) {
+    return showDialog(context: context, builder: (_) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)
+                  ),
+                  backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+                  title: Text("Edit Task"),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                                onChanged: (value){
+                                  //Task name
+                                  newName = value;
+
+
+                                },
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                  hintText: "Name of task...",
+                                ),
+                            )
+                          ),
+
+                          SizedBox(width: 10),
+
+                          SizedBox(
+                            width: 60,
+                            child: TextField(
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                //XP value
+                                int? temp = int.tryParse(value);
+
+                                if(temp!=null){
+                                  newXp = temp;
+                                }
+
+                                else{
+                                  newXp = 0;
+                                }
+
+                              },
+
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                hintText: "XP...",
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 30),
+                      MaterialButton(
+                        color: Colors.green,
+                        child: Text("Done", style: TextStyle(color: Colors.white),),
+                        onPressed: (){
+                          
+
+                          TaskData newTask = TaskData(id: id, content: newName, xp: newXp, status: isChecked);
+
+                          onEdit(newTask);
+
+
+                          if(context.mounted){
+                            Navigator.pop(context);
+                          }
+                      }
+                      ),
+                    ],
+                  ),
+                ));
   }
 }

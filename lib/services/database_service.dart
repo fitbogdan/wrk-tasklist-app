@@ -129,5 +129,26 @@ class DatabaseService{
     );
   }
 
+  Future<void> updateTaskName(TaskData task) async{
+    final db = await database;
+
+    await db.update(
+      _tasksTableName,
+      task.toMap(),
+      where: '$_tasksContentColumnName = ?',
+      whereArgs: [task.content]
+    );
+  }
+
+  Future<void> updateTaskXp (TaskData task) async{
+    final db = await database;
+
+    await db.update(_tasksTableName,
+     task.toMap(),
+     where: '$_tasksXpColumnName = ?',
+     whereArgs: [task.xp]
+     );
+  }
+
 }
 
