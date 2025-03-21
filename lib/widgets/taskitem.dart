@@ -49,8 +49,8 @@ class TaskItem extends StatelessWidget {
     //double width = MediaQuery.sizeOf(context).width;
     //double height = MediaQuery.sizeOf(context).height;
 
-    String newName = '';
-    int newXp = 0;
+    String newName = name;
+    int newXp = xp;
 
     return Container(
     width: 573,
@@ -152,78 +152,87 @@ class TaskItem extends StatelessWidget {
 
   Future<dynamic> editTaskDialog(BuildContext context, String newName, int newXp) {
     return showDialog(context: context, builder: (_) => AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)
-                  ),
-                  backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-                  title: Text("Edit Task"),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                                onChanged: (value){
-                                  //Task name
-                                  newName = value;
-
-
-                                },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                  hintText: "Name of task...",
-                                ),
-                            )
-                          ),
-
-                          SizedBox(width: 10),
-
-                          SizedBox(
-                            width: 60,
-                            child: TextField(
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) {
-                                //XP value
-                                int? temp = int.tryParse(value);
-
-                                if(temp!=null){
-                                  newXp = temp;
-                                }
-
-                                else{
-                                  newXp = 0;
-                                }
-
-                              },
-
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                hintText: "XP...",
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 30),
-                      MaterialButton(
-                        color: Colors.green,
-                        child: Text("Done", style: TextStyle(color: Colors.white),),
-                        onPressed: (){
-                          
-
-                          TaskData newTask = TaskData(id: id, content: newName, xp: newXp, status: isChecked);
-
-                          onEdit(newTask);
-
-
-                          if(context.mounted){
-                            Navigator.pop(context);
-                          }
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10)
+      ),
+      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      title: Text("Edit Task"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                    onChanged: (value){
+                      //Task name
+                      if(value!=''){
+                        newName = value;
                       }
-                      ),
-                    ],
+                    
+                    },
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      hintText: "New name...",
+                    ),
+                )
+              ),
+
+              SizedBox(width: 10),
+
+              SizedBox(
+                width: 60,
+                child: TextField(
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    //XP value
+                    int? temp = int.tryParse(value);
+
+                    if(temp!=null){
+                      newXp = temp;
+                    }
+
+                    else{
+                      //Error case
+                      newXp = 0;
+                    }
+
+                  },
+
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    hintText: "XP...",
                   ),
-                ));
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 30),
+          MaterialButton(
+            color: Colors.green,
+            child: Text("Done", style: TextStyle(color: Colors.white),),
+            onPressed: (){
+              
+
+              TaskData newTask = TaskData(id: id, content: newName, xp: newXp, status: isChecked);
+
+              onEdit(newTask);
+
+
+              if(context.mounted){
+                Navigator.pop(context);
+              }
+          }
+          ),
+
+          SizedBox(height: 10),
+
+          Text(
+            "*To just edit one atribute, add only that attribute*",
+            style: Theme.of(context).textTheme.bodySmall,            
+            ),
+        ],
+      ),
+    ));
   }
 }
