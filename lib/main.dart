@@ -36,8 +36,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
-      //TODO: Centralize all style information here.
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(183, 48, 48, 48)),
           scaffoldBackgroundColor: Colors.white,
@@ -93,12 +91,14 @@ class _MyHomePageState extends State<MyHomePage> {
   List<TaskData> tasks = [];
 
   
-  String? to_beat;
+  int? toBeat;
+  int toBeatCopy = 0;
 
   @override
   void initState() {
     super.initState();
     loadTasks();
+    getLast();
   }
 
 
@@ -108,10 +108,16 @@ class _MyHomePageState extends State<MyHomePage> {
       tasks = dbTasks;
     });
 
+  }
+
+  Future<void> getLast() async{
     Preferences user = await Preferences.create();
 
-    to_beat = user.prefs.getString('to_beat');
-
+    setState(() {
+      toBeat = user.prefs.getInt('to_beat');  
+      toBeatCopy = toBeat ?? 0;
+    });
+    
   }
   //ONLY FOR DEV REASONS, REMOVE FOR PRODUCTION!!!
   Future<void> genTask() async{
@@ -181,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text(
                   
                   "Reps Today: $reps", 
-                  style: (last > reps ? repsBad : repsGood),
+                  style: (toBeatCopy > reps ? repsBad : repsGood),
 
                   )
                   ),
@@ -197,8 +203,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   opacity: 1,  
                   child: MaterialButton(
                     onPressed: () {
-                      //TODO: Make this AlertDialog re-usable.
-                      
                       showDialog(context: context, builder: (context) => StatefulBuilder( //This is a stateful builder, so I can set actively update the reps in the window
                         builder: (context, setDialogState){
                             return AlertDialog(
@@ -206,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           borderRadius: BorderRadius.circular(10),
                           ),
                         backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-                        title: Text("Reps to beat: $last"),
+                        title: Text("Reps to beat: $toBeat"),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [ 
@@ -235,35 +239,25 @@ class _MyHomePageState extends State<MyHomePage> {
                                   "Done",
                                   style: TextStyle(color: Colors.white),
                                   ),
-                                onPressed: () {
+                                onPressed: () async {
                                   if(xpTemp <= -1){
                                     errorMessage(context, "Enter a (positive) number!");
                                     xpTemp = -1;
                                   }
                                   else{
 
-                                    setState(() {
-                                      last = xpTemp;
-                                      xpTemp = -1;
-                                    });
-
-                                    setDialogState(() {
-                                      last = last;
-                                    });
+                                    //Push to prefs
+                                    Preferences user = await Preferences.create();
+                                    user.prefs.setInt('to_beat', xpTemp);
+                                    getLast();
                                   }
                                   playClickSound();
-                                  Navigator.pop(context);
+                                  if(context.mounted){
+                                    Navigator.pop(context);
+                                  }
+                                  
                               }
                               )
-
-                              /*Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  //minusButton(setDialogState),
-                                  SizedBox(width: 10),
-                                  //plusButton(setDialogState),
-                                ],
-                              )*/
                             ],
                           ),
                         );
@@ -271,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         
                       ));
                     },
-                    child: Text("To beat: $last", style: smallwords)
+                    child: Text("To beat: $toBeat", style: smallwords)
                     )
                   ),
                 ]),
@@ -316,6 +310,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+
+//--------------------OLD----------------------- last is not toBeat
   MaterialButton plusButton(StateSetter setDialogState) {
     return MaterialButton(
       color: Colors.green,
@@ -334,7 +330,8 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     },);
   }
-
+//---------------------------------------------------------------------
+//--------------------OLD----------------------- last is not toBeat
   MaterialButton minusButton(StateSetter setDialogState) {
     return MaterialButton(
       color: Colors.red,
@@ -353,6 +350,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     },);
   }
+//---------------------------------------------------------------------
 
   FloatingActionButton editRepsButton(BuildContext context) {
     return FloatingActionButton.small(onPressed:() {
@@ -415,7 +413,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                   ));
                 },
-                backgroundColor: (last > reps ? Colors.red : Colors.green),
+                backgroundColor: (toBeatCopy > reps ? Colors.red : Colors.green),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -466,7 +464,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed:() {
                     // ignore: avoid_print
                     print(tasks);
-                    print(to_beat);
+                    // ignore: avoid_print
+                    print(toBeat);
                   },
                   child: Icon(Icons.keyboard),
                 );

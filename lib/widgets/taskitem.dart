@@ -98,7 +98,7 @@ class TaskItem extends StatelessWidget {
                             Expanded(
                               child: TextField(
                                   onChanged: (value){
-                                    //TODO
+                                    //TODO - get this from parent widget
                                   },
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -114,7 +114,7 @@ class TaskItem extends StatelessWidget {
                               child: TextField(
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
-                                  //TODO
+                                  //TODO - get this from parent widget
                                 },
 
                                 decoration: InputDecoration(
@@ -156,7 +156,6 @@ class TaskItem extends StatelessWidget {
                 
                 
                 ),
-                //TODO: Wrap in material button
                 Expanded(
 
                   child: Container(
