@@ -7,6 +7,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:wrk/services/sound_service.dart';
+//import 'package:shared_preferences_windows/shared_preferences_windows.dart';
 //import 'package:flutter/services.dart';
 //import 'package:http/http.dart' as http;
 //import 'dart:convert';
@@ -23,6 +24,8 @@ void main() {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
+
+
   runApp(const MyApp());
 }
 
@@ -79,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final DatabaseService _databaseService = DatabaseService.instance;
 
   
-
+  
   int reps = 0;
   int last = 8;
   int repsTemp = -1;
@@ -90,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<TaskData> tasks = [];
 
   
+  String? to_beat;
 
   @override
   void initState() {
@@ -97,11 +101,17 @@ class _MyHomePageState extends State<MyHomePage> {
     loadTasks();
   }
 
+
   Future<void> loadTasks() async{
     final dbTasks = await DatabaseService.instance.getTasks();
     setState(() {
       tasks = dbTasks;
     });
+
+    Preferences user = await Preferences.create();
+
+    to_beat = user.prefs.getString('to_beat');
+
   }
   //ONLY FOR DEV REASONS, REMOVE FOR PRODUCTION!!!
   Future<void> genTask() async{
@@ -124,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
       reps=repsDelta;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -224,12 +235,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   "Done",
                                   style: TextStyle(color: Colors.white),
                                   ),
-                                onPressed: (){
+                                onPressed: () {
                                   if(xpTemp <= -1){
                                     errorMessage(context, "Enter a (positive) number!");
                                     xpTemp = -1;
                                   }
                                   else{
+
                                     setState(() {
                                       last = xpTemp;
                                       xpTemp = -1;
@@ -454,6 +466,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed:() {
                     // ignore: avoid_print
                     print(tasks);
+                    print(to_beat);
                   },
                   child: Icon(Icons.keyboard),
                 );

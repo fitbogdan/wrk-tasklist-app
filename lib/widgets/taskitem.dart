@@ -138,14 +138,16 @@ class TaskItem extends StatelessWidget {
                   ));
                 },
 
-                child: Expanded(
-                  child: Text(
-                    name,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                    softWrap: false,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
+                child: Row(
+                  children: [
+                    Text(
+                      name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      softWrap: false,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
                 ),
 
                 

@@ -2,9 +2,23 @@ import 'dart:io';
 import '../widgets/taskitem.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:wrk/main.dart';
 //import 'package:sqflite_common_ffi';
 
+
+
+class Preferences{
+  late final SharedPreferences prefs;
+
+  Preferences._(this.prefs);
+
+  static Future<Preferences> create() async{
+    final prefs = await SharedPreferences.getInstance();
+    return Preferences._(prefs);
+  }
+  
+}
 
 class DatabaseService{
   static Database? _db;
