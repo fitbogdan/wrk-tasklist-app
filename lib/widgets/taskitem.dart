@@ -46,15 +46,15 @@ class TaskItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    double width = MediaQuery.sizeOf(context).width;
-    double height = MediaQuery.sizeOf(context).height;
+    //double width = MediaQuery.sizeOf(context).width;
+    //double height = MediaQuery.sizeOf(context).height;
 
     String newName = '';
     int newXp = 0;
 
     return Container(
-    width: (573/width) * width,
-    height: (76/height) * height,
+    width: 573,
+    height: 76,
     margin: EdgeInsets.all(10),
     //padding: EdgeInsets.all(20),
     decoration: BoxDecoration(
@@ -93,13 +93,19 @@ class TaskItem extends StatelessWidget {
                 },
 
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      name,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                      softWrap: false,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                    Container(
+                      //TODO: Make this and whole task size work toghether
+                      width: 400,
+                      child: Text(
+                        name,
+                        textAlign: TextAlign.left,
+                        overflow: TextOverflow.clip,
+                        maxLines: 2,
+                        softWrap: true,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ],
                 ),
@@ -111,7 +117,6 @@ class TaskItem extends StatelessWidget {
                 
                 ),
                 Expanded(
-
                   child: Container(
                     alignment: Alignment.centerRight,
                     child: Text("$xp r", style: TextStyle(color: Colors.green),)
