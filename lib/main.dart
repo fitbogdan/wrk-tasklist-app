@@ -99,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     loadTasks();
     getLast();
+
   }
 
 
@@ -151,6 +152,18 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+
+          FloatingActionButton(
+            backgroundColor: Colors.yellow,
+            child: Icon(Icons.bolt),
+            onPressed: () {
+              _databaseService.addTask("", 0);
+              loadTasks();
+              playPopSound();
+            }),
+
+          SizedBox(width: 10),
+
           _addTaskButton(),
 //------------------DEV MODE ONLY:----------------------------------------------
           SizedBox(width: 10),
