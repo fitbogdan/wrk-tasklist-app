@@ -297,7 +297,7 @@ class TaskItem extends StatelessWidget {
           SizedBox(height: 10),
 
           Text(
-            "*To just edit one atribute, add only that attribute*",
+            "*You can edit one or more*",
             style: Theme.of(context).textTheme.bodySmall,            
             ),
         ],
