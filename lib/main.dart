@@ -87,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String? _task;
   int? _xp;
   int xpTemp = -1;
+  int repsTotal = 0;
 
   List<TaskData> tasks = [];
 
@@ -108,16 +109,20 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       tasks = dbTasks;
     });
+
+    //OLD
     //Counts all checked tasks, to give number of reps completed today, without having to save
-    updateReps();
+    //updateReps();
   }
 
   Future<void> getLast() async{
     Preferences user = await Preferences.create();
-
+    //Get prefs!
+    int? repsTotalTemp = user.prefs.getInt('repsTotal');
     setState(() {
       toBeat = user.prefs.getInt('to_beat');  
       toBeatCopy = toBeat ?? 0;
+      repsTotal = repsTotalTemp ?? 0;
     });
     
   }
@@ -130,17 +135,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   //Adds to the total number of reps, for today.
-  void updateReps()
+  void updateReps() async
   {
-    int repsDelta = 0;
-    for(final task in tasks){
+
+    Preferences user = await Preferences.create();
+    user.prefs.setInt('repsTotal', repsTotal);
+
+    //OLD
+    //int repsDelta = 0;
+    /*for(final task in tasks){
       if(task.status == 1){
         repsDelta+=task.xp;
       }
     }
     setState(() {
       reps=repsDelta;
-    });
+    });*/
   }
 
 
@@ -200,8 +210,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   opacity: 1,  
                   child: Text(
                   
-                  "Reps Today: $reps", 
-                  style: (toBeatCopy > reps ? repsBad : repsGood),
+                  "Reps Today: $repsTotal", 
+                  style: (toBeatCopy > repsTotal ? repsBad : repsGood),
 
                   )
                   ),
@@ -300,9 +310,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       xp: task.xp, 
                       isChecked: task.status,
                       onToggle:(isChecked) async {
+
+                        
                 
                         setState(() {
+                          if(isChecked == 0){
+                          repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
+                          }
+                          else{
+                            repsTotal = repsTotal + task.xp;
+                          }
+
                           task.status = isChecked;  
+                          
                         });
                         
                         _databaseService.updateTask(task);
@@ -315,6 +335,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       onDelete:(id) async {
                         _databaseService.deleteTask(task);
                         setState(() {
+                            if(task.status == 1){
+                              repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
+                            }
                             tasks.removeAt(index);
                         });
                         updateReps();
@@ -328,6 +351,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           _databaseService.updateTask(newTask);
 
                           setState(() {
+                            if(newTask.status == 1){
+                              repsTotal = repsTotal + newTask.xp;
+                            }
+
                             task = newTask;
                             tasks[index] = newTask;
                           });
@@ -436,12 +463,16 @@ class _MyHomePageState extends State<MyHomePage> {
                           onPressed:() {
                           if(repsTemp!=-1){
                               setState(() {
+                              repsTotal = repsTemp;
+                              //OLD:
                               reps = repsTemp;
                               repsTemp = -1;
                               });
                           }
                           else{
                             setState(() {
+                              repsTotal = repsTemp;
+                              //OLD:
                               reps = 0;
                             });
                             //OR, could just leave the error
@@ -454,7 +485,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                   ));
                 },
-                backgroundColor: (toBeatCopy > reps ? Colors.red : Colors.green),
+                backgroundColor: (toBeatCopy > repsTotal ? Colors.red : Colors.green),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -507,6 +538,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     print(tasks);
                     // ignore: avoid_print
                     print(toBeat);
+
+                    print("Reps total: $repsTotal");
                   },
                   child: Icon(Icons.keyboard),
                 );
