@@ -282,6 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               }
                               )
                             ],
+
                           ),
                         );
                       }
@@ -297,20 +298,28 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 10,),
   
             Flexible(
-              child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index){
-                  var task = tasks[index];
-                  return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TaskItem(
-                      id: task.id,
-                      name: task.content, 
-                      xp: task.xp, 
-                      isChecked: task.status,
-                      onToggle:(isChecked) async {
 
+            
+              child: SizedBox(
+                width: (width*0.23 < 500 ? 500+25 : width * 0.23+25),
+                child: ReorderableListView.builder(
+                  proxyDecorator: selectDecorator,
+                  buildDefaultDragHandles: false,
+                  itemCount: tasks.length, 
+                  itemBuilder:(context, index) {
+                    var task = tasks[index];
+                    return Row(
+                      key: Key('$index'),//ValueKey(tasks[index]),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TaskItem(
+                          index: index,
+                          id: task.id,
+                          name: task.content, 
+                          xp: task.xp, 
+                          isChecked: task.status,
+                          onToggle:(isChecked) async {
+                
                         
                 
                         setState(() {
@@ -320,7 +329,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           else{
                             repsTotal = repsTotal + task.xp;
                           }
-
+                
                           task.status = isChecked;  
                           
                         });
@@ -329,9 +338,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         loadTasks();
                         updateReps();
                         },
-
-
-
+                
+                
+                
                       onDelete:(id) async {
                         _databaseService.deleteTask(task);
                         setState(() {
@@ -342,19 +351,19 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                         updateReps();
                         },
-
-
-
+                
+                
+                
                         onEdit: (newTask) async {
                           
                           //_databaseService.updateTaskName(newTask);
                           _databaseService.updateTask(newTask);
-
+                
                           setState(() {
                             if(newTask.status == 1){
                               repsTotal = repsTotal + newTask.xp;
                             }
-
+                
                             task = newTask;
                             tasks[index] = newTask;
                           });
@@ -363,19 +372,138 @@ class _MyHomePageState extends State<MyHomePage> {
                           updateReps();
                           
                           
-
+                
                         }
                       ),
-
+                
                       
                       
                       ],
                   );
-                }),
+                  }, 
+                
+                  onReorder:(oldIndex, newIndex) async {
+                    setState(() {
+                      if(oldIndex < newIndex){
+                        newIndex--;
+                      }
+                
+                      final TaskData item = tasks[oldIndex];
+
+                      
+                      tasks.removeAt(oldIndex);
+                      tasks.insert(newIndex, item);
+                    });
+                  },
+                  
+                  ),
+              )
+              
+              //buildTasks(),
             ),
           ],)
       )
     );
+  }
+
+  Widget selectDecorator(child, index, animation) {
+      return Material(
+              child: child,
+            );
+        /*AnimatedBuilder(
+        animation: animation,
+        builder: (BuildContext context, Widget? child) {
+          return Transform.scale(
+            scale: 1.05,
+            child: Material(
+              //elevation: 2,
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+              child: child,
+            ),
+            );*/
+        //},
+       // child: child,
+      //);
+  }
+//OLD Without reordering
+  ListView buildTasks() {
+    return ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (context, index){
+                var task = tasks[index];
+                return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TaskItem(
+                    index: index,
+                    id: task.id,
+                    name: task.content, 
+                    xp: task.xp, 
+                    isChecked: task.status,
+                    onToggle:(isChecked) async {
+
+                      
+              
+                      setState(() {
+                        if(isChecked == 0){
+                        repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
+                        }
+                        else{
+                          repsTotal = repsTotal + task.xp;
+                        }
+
+                        task.status = isChecked;  
+                        
+                      });
+                      
+                      _databaseService.updateTask(task);
+                      loadTasks();
+                      updateReps();
+                      },
+
+
+
+                    onDelete:(id) async {
+                      _databaseService.deleteTask(task);
+                      setState(() {
+                          if(task.status == 1){
+                            repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
+                          }
+                          tasks.removeAt(index);
+                      });
+                      updateReps();
+                      },
+
+
+
+                      onEdit: (newTask) async {
+                        
+                        //_databaseService.updateTaskName(newTask);
+                        _databaseService.updateTask(newTask);
+
+                        setState(() {
+                          if(newTask.status == 1){
+                            repsTotal = repsTotal + newTask.xp;
+                          }
+
+                          task = newTask;
+                          tasks[index] = newTask;
+                        });
+                        
+                        loadTasks();
+                        updateReps();
+                        
+                        
+
+                      }
+                    ),
+
+                    
+                    
+                    ],
+                );
+              });
   }
 
 

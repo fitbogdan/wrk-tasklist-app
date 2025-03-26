@@ -26,6 +26,7 @@ class TaskItem extends StatelessWidget {
   final int xp;
   final int id;
   final int isChecked;
+  final int index;
   final Function(int) onToggle;
   final Function(int) onDelete;
   final Function(TaskData) onEdit;
@@ -41,6 +42,7 @@ class TaskItem extends StatelessWidget {
     required this.onToggle,
     required this.onDelete,
     required this.onEdit,
+    required this.index,
   });
 
   @override
@@ -97,14 +99,35 @@ class TaskItem extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: (width*0.15 < 300 ? 300 : width*0.15),
-                      child: Text(
-                        name,
+                      child: RichText(
+                        textAlign: TextAlign.left,
+                        overflow: TextOverflow.clip,
+                        maxLines: 2,
+                        softWrap: true,
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          children: [
+                            TextSpan(text: "$name "),
+                            TextSpan(
+                              text: "+$xp",
+                              style: TextStyle(
+                                color: Colors.green,
+                               // fontSize: 
+                              )
+                            )
+                          ]
+                        )
+                        )
+                      
+                      
+                      /*Text(
+                        "$name +$xp",
                         textAlign: TextAlign.left,
                         overflow: TextOverflow.clip,
                         maxLines: 2,
                         softWrap: true,
                         style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      ),*/
                     ),
                   ],
                 ),
@@ -115,12 +138,12 @@ class TaskItem extends StatelessWidget {
                 
                 
                 ),
-                Expanded(
+                /*Expanded(
                   child: Container(
                     alignment: Alignment.centerRight,
                     child: Text("$xp r", style: TextStyle(color: Colors.green),)
                     )
-                  ),
+                  ),*/
               
                 
             
@@ -203,8 +226,17 @@ class TaskItem extends StatelessWidget {
                 icon: Icon(
                   Icons.delete,
                   size: 20,
-                  ))
-            ],),
+                  )),
+
+                  ReorderableDragStartListener(
+                      index: index,
+                      child: Padding(
+                        padding: EdgeInsets.all(3),
+                        child: Icon(Icons.drag_handle),
+                        ),
+                      )
+            ],
+            ),
             
               
             
