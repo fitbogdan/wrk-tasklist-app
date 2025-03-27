@@ -116,26 +116,31 @@ class _MyHomePageState extends State<MyHomePage> {
           repsTotal = repsTotal + task.xp;
         }
         task.status = isChecked;  
-      _databaseService.updateTask(task);
+      await _databaseService.updateTask(task);
       loadTasks();
       updateReps();
   }
 
   Future<void> onDelete(int id, TaskData task, int index) async{
 
-      _databaseService.deleteTask(task);
+      
       setState(() {
           if(task.status == 1){
             repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
           }
           tasks.removeAt(index);
       });
+
+      setState(() {
+      });
+
+      await _databaseService.deleteTask(task);
+      await loadTasks();
       updateReps();
-                        
   }
 
   Future<void> onEdit(TaskData newTask, TaskData task, int index) async{
-    _databaseService.updateTask(newTask);
+    
     //TaskData newTask, TaskData task
     setState(() {
       if(newTask.status == 1){
@@ -146,8 +151,8 @@ class _MyHomePageState extends State<MyHomePage> {
       task = newTask;
       tasks[index] = newTask;
     });
-    
-    loadTasks();
+    await _databaseService.updateTask(newTask);
+    await loadTasks();
     updateReps();
   }
 
@@ -193,6 +198,9 @@ class _MyHomePageState extends State<MyHomePage> {
     String name = WordPair.random().toString();
     int xp = Random.secure().nextInt(20);
     _databaseService.addTask(name, xp, tasks.length+1);
+    //TODO: PROBLEM, whenever you add, the indexes do not update, so, if you have a bunch of tasks, and the last 2 ones
+    //are checked only, and then delete a lot of the upper tasks, whenever you generate in new tasks,
+    //they will generate either above, under or in between the last tasks, because I am updating it based on length
     loadTasks();
   }
 
@@ -228,7 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             backgroundColor: Colors.yellow,
             child: Icon(Icons.bolt),
-            onPressed: () {
+            onPressed: () async {
               _databaseService.addTask("", 0, tasks.length+1);
               loadTasks();
               playPopSound();
@@ -371,7 +379,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemBuilder:(context, index) {
                     var task = tasks[index];
                     return Row(
-                      key: Key('$index'),//ValueKey(tasks[index]),
+                      key: ValueKey(task.id),
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         TaskItem(
@@ -688,14 +696,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             xpTemp = -1;
                           });
 
+                          
                           _databaseService.addTask(_task!, _xp!, tasks.length+1);
-
                           setState(() {
                             _task = null;
                             Navigator.pop(context);
                             loadTasks();
                           });
-
+                          
                           playPopSound();
                         }
                         
