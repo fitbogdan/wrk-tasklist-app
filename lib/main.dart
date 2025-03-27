@@ -104,6 +104,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
+
+
   Future<void> loadTasks() async{
     final dbTasks = await DatabaseService.instance.getTasks();
     setState(() {
@@ -130,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> genTask() async{
     String name = WordPair.random().toString();
     int xp = Random.secure().nextInt(20);
-    _databaseService.addTask(name, xp);
+    _databaseService.addTask(name, xp, tasks.length+1);
     loadTasks();
   }
 
@@ -167,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
             backgroundColor: Colors.yellow,
             child: Icon(Icons.bolt),
             onPressed: () {
-              _databaseService.addTask("", 0);
+              _databaseService.addTask("", 0, tasks.length+1);
               loadTasks();
               playPopSound();
             }),
@@ -313,7 +315,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         TaskItem(
-                          index: index,
+                          orderIndex: index,
                           id: task.id,
                           name: task.content, 
                           xp: task.xp, 
@@ -383,16 +385,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   }, 
                 
                   onReorder:(oldIndex, newIndex) async {
-                    setState(() {
-                      if(oldIndex < newIndex){
+                    if(oldIndex < newIndex){
                         newIndex--;
-                      }
-                
+                      }                
                       final TaskData item = tasks[oldIndex];
-
-                      
                       tasks.removeAt(oldIndex);
-                      tasks.insert(newIndex, item);
+                      tasks.insert(newIndex, item);                      
+                      for(int i = 0; i < tasks.length; i++){
+                        tasks[i].orderIndex = i+1;
+                        _databaseService.updateTask(tasks[i]);
+                      }
+                    setState(() {
                     });
                   },
                   
@@ -436,7 +439,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TaskItem(
-                    index: index,
+                    orderIndex: index,
                     id: task.id,
                     name: task.content, 
                     xp: task.xp, 
@@ -662,12 +665,10 @@ class _MyHomePageState extends State<MyHomePage> {
     return FloatingActionButton(
                   // ignore: avoid_print
                   onPressed:() {
-                    // ignore: avoid_print
+                    //ignore: avoid_print
                     print(tasks);
-                    // ignore: avoid_print
-                    print(toBeat);
-
-                    print("Reps total: $repsTotal");
+                    //ignore: avoid_print
+                    print(tasks[0].orderIndex);
                   },
                   child: Icon(Icons.keyboard),
                 );
@@ -757,7 +758,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             xpTemp = -1;
                           });
 
-                          _databaseService.addTask(_task!, _xp!);
+                          _databaseService.addTask(_task!, _xp!, tasks.length+1);
 
                           setState(() {
                             _task = null;

@@ -6,17 +6,24 @@ class TaskData{
   String content;
   int xp;
   int status;
+  int orderIndex;
 
-  TaskData({required this.id, required this.content, required this.xp, required this.status});
+  TaskData({
+    required this.id, 
+    required this.content, 
+    required this.xp, 
+    required this.status,
+    required this.orderIndex,
+    });
 
   Map<String, Object?> toMap(){
-    return {'id' : id, 'content' : content, 'xp' : xp, 'status' : status};
+    return {'id' : id, 'content' : content, 'xp' : xp, 'status' : status, 'order_index' : orderIndex};
   }
 
   @override
   String toString()
   {
-    return 'Task{id: $id, content: $content, xp: $xp, status: $status}';
+    return 'Task{id: $id, content: $content, xp: $xp, status: $status, index: $orderIndex}';
   }  
 
 }
@@ -26,7 +33,7 @@ class TaskItem extends StatelessWidget {
   final int xp;
   final int id;
   final int isChecked;
-  final int index;
+  final int orderIndex;
   final Function(int) onToggle;
   final Function(int) onDelete;
   final Function(TaskData) onEdit;
@@ -42,7 +49,7 @@ class TaskItem extends StatelessWidget {
     required this.onToggle,
     required this.onDelete,
     required this.onEdit,
-    required this.index,
+    required this.orderIndex,
   });
 
   @override
@@ -229,7 +236,7 @@ class TaskItem extends StatelessWidget {
                   )),
 
                   ReorderableDragStartListener(
-                      index: index,
+                      index: orderIndex,
                       child: Padding(
                         padding: EdgeInsets.all(3),
                         child: Icon(Icons.drag_handle),
@@ -315,7 +322,7 @@ class TaskItem extends StatelessWidget {
             onPressed: (){
               
 
-              TaskData newTask = TaskData(id: id, content: newName, xp: newXp, status: isChecked);
+              TaskData newTask = TaskData(id: id, content: newName, xp: newXp, status: isChecked, orderIndex: orderIndex);
 
               onEdit(newTask);
 
