@@ -155,80 +155,12 @@ class TaskItem extends StatelessWidget {
                 
             
             
-            
-                IconButton(onPressed: () => {
+                //DELETE
+                IconButton(onPressed: () {
 
-                    showDialog(context: context, builder: (_) => AlertDialog(
-                      title: Text("Do you want to keep the reps?"),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          ),
-                      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          /*
-
-                          //TODO: Add remember my choice setting
-                          Row(
-                            children: [
-                              Checkbox(
-                              value: rememberSave, 
-                              onChanged: (value) {
-                                rememberSave = value!;
-                              }
-                              
-                              )
-                            ],
-                          ),
-                          */
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  onDelete(id);
-                                  playPopSound();
-                                  Navigator.pop(context);
-                                }, 
-
-                                style: ButtonStyle(
-                                    backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
-                                  ),
-
-                                child: Text(
-                                  "No",
-                                  style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-
-
-                                SizedBox(width: 10),
-
-                                ElevatedButton(
-                                  onPressed: () {
-                                    //TODO: Make this add to the rembered ammount of reps done
-                                   }, 
-
-                                  style: ButtonStyle(
-                                    backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
-                                  ),
-                                  
-                                  child: Text(
-                                    "Yes",
-                                    style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                            ],
-                          ),
-                          
-                          
-                        ],
-                      ),
-                    )),
-                    /*
-                    onDelete(id),
-                    playPopSound(),*/
+                    //TaskData task = TaskData(id: id, content: name, xp: xp, status: isChecked, orderIndex: orderIndex);
+                    onDelete(id);
+                    playPopSound();
                 }, 
                 icon: Icon(
                   Icons.delete,
@@ -256,6 +188,81 @@ class TaskItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Set<void> get keepOrDeleteDialog {
+    return {
+            /*showDialog(context: context, builder: (_) => AlertDialog(
+              title: Text("Do you want to keep the reps?"),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  ),
+              backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /*
+
+                  //TODO: Add remember my choice setting
+                  Row(
+                    children: [
+                      Checkbox(
+                      value: rememberSave, 
+                      onChanged: (value) {
+                        rememberSave = value!;
+                      }
+                      
+                      )
+                    ],
+                  ),
+                  */
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          onDelete(id);
+                          playPopSound();
+                          Navigator.pop(context);
+                        }, 
+
+                        style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                          ),
+
+                        child: Text(
+                          "No",
+                          style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+
+
+                        SizedBox(width: 10),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            //TODO: Make this add to the rembered ammount of reps done
+                            }, 
+
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
+                          ),
+                          
+                          child: Text(
+                            "Yes",
+                            style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                    ],
+                  ),
+                  
+                  
+                ],
+              ),
+            )),*/
+                  
+                  
+              };
   }
 
   Future<dynamic> editTaskDialog(BuildContext context, String newName, int newXp) {
@@ -329,6 +336,7 @@ class TaskItem extends StatelessWidget {
 
               if(context.mounted){
                 Navigator.pop(context);
+                playPopSound();
               }
           }
           ),

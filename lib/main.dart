@@ -90,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int repsTotal = 0;
 
   List<TaskData> tasks = [];
+  List<TaskData> tasksDone = [];
 
   
   int? toBeat;
@@ -104,12 +105,71 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
+  Future<void> onToggle(TaskData task, int isChecked) async{
+    if(isChecked == 0){
+        repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
+        }
+        else{
+          if(repsTotal+task.xp >= toBeatCopy && repsTotal < toBeatCopy){
+            playWinSound();
+          }
+          repsTotal = repsTotal + task.xp;
+        }
+        task.status = isChecked;  
+      _databaseService.updateTask(task);
+      loadTasks();
+      updateReps();
+  }
 
+  Future<void> onDelete(int id, TaskData task, int index) async{
+
+      _databaseService.deleteTask(task);
+      setState(() {
+          if(task.status == 1){
+            repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
+          }
+          tasks.removeAt(index);
+      });
+      updateReps();
+                        
+  }
+
+  Future<void> onEdit(TaskData newTask, TaskData task, int index) async{
+    _databaseService.updateTask(newTask);
+    //TaskData newTask, TaskData task
+    setState(() {
+      if(newTask.status == 1){
+        repsTotal -= task.xp;
+        repsTotal = repsTotal + newTask.xp;
+      }
+
+      task = newTask;
+      tasks[index] = newTask;
+    });
+    
+    loadTasks();
+    updateReps();
+  }
 
   Future<void> loadTasks() async{
     final dbTasks = await DatabaseService.instance.getTasks();
     setState(() {
       tasks = dbTasks;
+
+      /*tasks.clear();
+      tasksDone.clear();
+      int i1 = 0, i2 = 0;
+      for(int i = 0; i<dbTasks.length; i++){
+          TaskData task = dbTasks[i];
+
+          if(task.status == 1){
+            tasksDone.insert(i1++, task);
+          }
+          else{
+            tasks.insert(i2++, task);
+          }
+      } */
+      //tasks = dbTasks;
     });
 
     //OLD
@@ -320,68 +380,17 @@ class _MyHomePageState extends State<MyHomePage> {
                           name: task.content, 
                           xp: task.xp, 
                           isChecked: task.status,
-                          onToggle:(isChecked) async {
-                
-                        
-                
-                        setState(() {
-                          if(isChecked == 0){
-                          repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
+                          onToggle:(isChecked) {
+                            onToggle(task, isChecked);
+                          },
+                          onDelete:(id) {
+                            onDelete(id, task, index);
+                          },
+                          onEdit: (newTask) async {
+                            onEdit(newTask, task, index);
                           }
-                          else{
-                            repsTotal = repsTotal + task.xp;
-                          }
-                
-                          task.status = isChecked;  
-                          
-                        });
-                        
-                        _databaseService.updateTask(task);
-                        loadTasks();
-                        updateReps();
-                        },
-                
-                
-                
-                      onDelete:(id) async {
-                        _databaseService.deleteTask(task);
-                        setState(() {
-                            if(task.status == 1){
-                              repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
-                            }
-                            tasks.removeAt(index);
-                        });
-                        updateReps();
-                        },
-                
-                
-                
-                        onEdit: (newTask) async {
-                          
-                          //_databaseService.updateTaskName(newTask);
-                          _databaseService.updateTask(newTask);
-                
-                          setState(() {
-                            if(newTask.status == 1){
-                              repsTotal = repsTotal + newTask.xp;
-                            }
-                
-                            task = newTask;
-                            tasks[index] = newTask;
-                          });
-                          
-                          loadTasks();
-                          updateReps();
-                          
-                          
-                
-                        }
                       ),
-                
-                      
-                      
-                      ],
-                  );
+                    ],);
                   }, 
                 
                   onReorder:(oldIndex, newIndex) async {
@@ -395,14 +404,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         tasks[i].orderIndex = i+1;
                         _databaseService.updateTask(tasks[i]);
                       }
+
                     setState(() {
                     });
                   },
-                  
                   ),
               )
               
-              //buildTasks(),
             ),
           ],)
       )
@@ -428,85 +436,6 @@ class _MyHomePageState extends State<MyHomePage> {
         //},
        // child: child,
       //);
-  }
-//OLD Without reordering
-  ListView buildTasks() {
-    return ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (context, index){
-                var task = tasks[index];
-                return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TaskItem(
-                    orderIndex: index,
-                    id: task.id,
-                    name: task.content, 
-                    xp: task.xp, 
-                    isChecked: task.status,
-                    onToggle:(isChecked) async {
-
-                      
-              
-                      setState(() {
-                        if(isChecked == 0){
-                        repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
-                        }
-                        else{
-                          repsTotal = repsTotal + task.xp;
-                        }
-
-                        task.status = isChecked;  
-                        
-                      });
-                      
-                      _databaseService.updateTask(task);
-                      loadTasks();
-                      updateReps();
-                      },
-
-
-
-                    onDelete:(id) async {
-                      _databaseService.deleteTask(task);
-                      setState(() {
-                          if(task.status == 1){
-                            repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
-                          }
-                          tasks.removeAt(index);
-                      });
-                      updateReps();
-                      },
-
-
-
-                      onEdit: (newTask) async {
-                        
-                        //_databaseService.updateTaskName(newTask);
-                        _databaseService.updateTask(newTask);
-
-                        setState(() {
-                          if(newTask.status == 1){
-                            repsTotal = repsTotal + newTask.xp;
-                          }
-
-                          task = newTask;
-                          tasks[index] = newTask;
-                        });
-                        
-                        loadTasks();
-                        updateReps();
-                        
-                        
-
-                      }
-                    ),
-
-                    
-                    
-                    ],
-                );
-              });
   }
 
 
@@ -602,7 +531,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           }
                           else{
                             setState(() {
-                              repsTotal = repsTemp;
+                              repsTotal = 0;
                               //OLD:
                               reps = 0;
                             });
@@ -666,9 +595,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   // ignore: avoid_print
                   onPressed:() {
                     //ignore: avoid_print
-                    print(tasks);
+                    print("\nTASKS: $tasks");
+                    print("\nTASKS DONE: $tasksDone");
                     //ignore: avoid_print
-                    print(tasks[0].orderIndex);
+                    
                   },
                   child: Icon(Icons.keyboard),
                 );
