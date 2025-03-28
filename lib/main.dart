@@ -92,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<TaskData> tasks = [];
   List<TaskData> tasksDone = [];
 
-  
+  int tasksDoneCount = 0;
   int? toBeat;
   int toBeatCopy = 0;
 
@@ -104,16 +104,53 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
+  Future<void> addTask(String content, int xp,  int orderIndex) async{
+    //PROBLEM, whenever you add, the indexes do not update, so, if you have a bunch of tasks, and the last 2 ones
+    //are checked only, and then delete a lot of the upper tasks, whenever you generate in new tasks,
+    //they will generate either above, under or in between the last tasks, because I am updating it based on length
+
+
+    _databaseService.addTask(content, xp, orderIndex);
+    //loadTasks();
+      for(int i = orderIndex-1; i<tasks.length; i++){
+        tasks[i].orderIndex++;
+        _databaseService.updateTask(tasks[i]);
+      }  
+    loadTasks();
+    
+  }
+
+  void refreshOrder(List<TaskData> tasks){
+    for(int i = 0; i< tasks.length; i++){
+      tasks[i].orderIndex = i+1;
+      _databaseService.updateTask(tasks[i]);
+    }
+  }
 
   Future<void> onToggle(TaskData task, int isChecked) async{
     if(isChecked == 0){
+        tasksDoneCount--;
         repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
+        if(task.status == 1){
+          TaskData aux = tasks.removeAt(task.orderIndex-1);
+          aux.orderIndex = tasks.length-tasksDoneCount+1;
+          tasks.insert(aux.orderIndex-1, aux);
+
+          refreshOrder(tasks);
+        }
+
         }
         else{
+          tasksDoneCount++;
           if(repsTotal+task.xp >= toBeatCopy && repsTotal < toBeatCopy){
             playWinSound();
           }
           repsTotal = repsTotal + task.xp;
+          
+          TaskData aux = tasks.removeAt(task.orderIndex-1);
+          aux.orderIndex = tasks.length;
+          tasks.insert(tasks.length, aux);
+          refreshOrder(tasks);
         }
         task.status = isChecked;  
       await _databaseService.updateTask(task);
@@ -126,12 +163,11 @@ class _MyHomePageState extends State<MyHomePage> {
       
       setState(() {
           if(task.status == 1){
+            tasksDoneCount--;
             repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
           }
           tasks.removeAt(index);
-      });
-
-      setState(() {
+          refreshOrder(tasks);
       });
 
       await _databaseService.deleteTask(task);
@@ -182,14 +218,18 @@ class _MyHomePageState extends State<MyHomePage> {
     //updateReps();
   }
 
+
+  //Gets last values out of the shared prefs path
   Future<void> getLast() async{
     Preferences user = await Preferences.create();
     //Get prefs!
     int? repsTotalTemp = user.prefs.getInt('repsTotal');
+    int? tasksDoneCountTemp = user.prefs.getInt('tasksDoneCount');
     setState(() {
       toBeat = user.prefs.getInt('to_beat');  
       toBeatCopy = toBeat ?? 0;
       repsTotal = repsTotalTemp ?? 0;
+      tasksDoneCount = tasksDoneCountTemp ?? 0;
     });
     
   }
@@ -197,32 +237,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> genTask() async{
     String name = WordPair.random().toString();
     int xp = Random.secure().nextInt(20);
-    _databaseService.addTask(name, xp, tasks.length+1);
-    //TODO: PROBLEM, whenever you add, the indexes do not update, so, if you have a bunch of tasks, and the last 2 ones
-    //are checked only, and then delete a lot of the upper tasks, whenever you generate in new tasks,
-    //they will generate either above, under or in between the last tasks, because I am updating it based on length
+
+    addTask(name, xp, (tasksDoneCount == 0 ? tasks.length+1 : tasks.length-tasksDoneCount+1));
     loadTasks();
   }
 
   //Adds to the total number of reps, for today.
+  //Pushes to prefs number of tasks done, so we can
+  //add tasks at the correct indexes
   void updateReps() async
   {
-
     Preferences user = await Preferences.create();
     user.prefs.setInt('repsTotal', repsTotal);
-
-    //OLD
-    //int repsDelta = 0;
-    /*for(final task in tasks){
-      if(task.status == 1){
-        repsDelta+=task.xp;
-      }
-    }
-    setState(() {
-      reps=repsDelta;
-    });*/
+    user.prefs.setInt('tasksDoneCount', tasksDoneCount);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
             backgroundColor: Colors.yellow,
             child: Icon(Icons.bolt),
             onPressed: () async {
-              _databaseService.addTask("", 0, tasks.length+1);
+              _databaseService.addTask("", 0, tasks.length-tasksDoneCount);
               loadTasks();
               playPopSound();
             }),
@@ -368,8 +396,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 10,),
   
             Flexible(
-
-            
+              flex: 3,
               child: SizedBox(
                 width: (width*0.23 < 500 ? 500+25 : width * 0.23+25),
                 child: ReorderableListView.builder(
@@ -418,8 +445,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   ),
               )
-              
             ),
+
+
+            /*Flexible(
+              flex: 1,
+              child: Text("Archive")
+              ),*/
+
+            //SizedBox(height: 50),
           ],)
       )
     );
@@ -603,8 +637,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   // ignore: avoid_print
                   onPressed:() {
                     //ignore: avoid_print
-                    print("\nTASKS: $tasks");
-                    print("\nTASKS DONE: $tasksDone");
+                    print("$tasks \n\n");
+
+
+                    for(int i=0; i < tasks.length; i++){
+                      print("${tasks[i].content} ${tasks[i].orderIndex}");
+                    }
+
+                    print("\n $tasksDoneCount");
+                    //print("\nTASKS: $tasks");
+                    //print("\nTASKS DONE: $tasksDone");
                     //ignore: avoid_print
                     
                   },
@@ -697,7 +739,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
 
                           
-                          _databaseService.addTask(_task!, _xp!, tasks.length+1);
+                          _databaseService.addTask(_task!, _xp!, tasks.length-tasksDoneCount);
                           setState(() {
                             _task = null;
                             Navigator.pop(context);

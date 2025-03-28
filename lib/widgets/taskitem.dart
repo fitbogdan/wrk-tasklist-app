@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wrk/services/sound_service.dart';
+import 'package:wrk/widgets/strikethrough_container.dart';
 
 class TaskData{
   final int id;
@@ -60,134 +61,156 @@ class TaskItem extends StatelessWidget {
 
     String newName = name;
     int newXp = xp;
-
-    return Container(
-    width: (width*0.23 < 500 ? 500 : width * 0.23), //OLD: 576
-    height: (height*0.06 < 76 ? 76 : height*0.06), //OLD: 76
-    margin: EdgeInsets.all(10),
-    //padding: EdgeInsets.all(20),
-    decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.white,
-              boxShadow: [BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.5),
-                offset: Offset(0, 0),
-                blurRadius: 7,
-                spreadRadius: 5
-              )]),
-      child: 
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-            
-                Checkbox(
-                  value: (isChecked == 1 ? true : false),
-                  activeColor: Colors.green,
-                  onChanged: (newBool){
-                      playClickSound();
-                    
-                    onToggle(newBool == true ? 1 : 0);
-                  },
-                ),
-            
-            
-              MaterialButton(
-                onPressed: () {
-                  editTaskDialog(context, newName, newXp);
-                },
-
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: (width*0.15 < 300 ? 300 : width*0.15),
-                      child: RichText(
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.clip,
-                        maxLines: 2,
-                        softWrap: true,
-                        text: TextSpan(
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          children: [
-                            TextSpan(text: "$name "),
-                            TextSpan(
-                              text: "+$xp",
-                              style: TextStyle(
-                                color: Colors.green,
-                               // fontSize: 
-                              )
-                            )
-                          ]
-                        )
-                        )
-                      
-                      
-                      /*Text(
-                        "$name +$xp",
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.clip,
-                        maxLines: 2,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),*/
-                    ),
-                  ],
-                ),
-
-                
-                  
-                  
-                
-                
-                ),
-                /*Expanded(
-                  child: Container(
-                    alignment: Alignment.centerRight,
-                    child: Text("$xp r", style: TextStyle(color: Colors.green),)
-                    )
-                  ),*/
-              
-                
-            
-            
-                //DELETE
-                IconButton(onPressed: () {
-
-                    //TaskData task = TaskData(id: id, content: name, xp: xp, status: isChecked, orderIndex: orderIndex);
-                    onDelete(id);
-                    playPopSound();
-                }, 
-                icon: Icon(
-                  Icons.delete,
-                  size: 20,
-                  )),
-
-                  ReorderableDragStartListener(
-                      index: orderIndex,
-                      child: Padding(
-                        padding: EdgeInsets.all(3),
-                        child: Icon(Icons.drag_handle),
-                        ),
-                      )
-            ],
-            ),
-            
-              
-            
-            
-            
-            
-            
-
-          ],
+    if(isChecked == 0){
+      return taskBox(width, height, context, newName, newXp);
+    }
+    else{
+      return Opacity(
+        opacity: 0.6,
+        child: StrikeThroughContainer(
+          linecolor: const Color.fromARGB(255, 92, 92, 92),
+          thickness: 1.6,
+          widthFactor: 1,
+          child: taskBox(width, height, context, newName, newXp),
         ),
+      );
+    }
+  }
+
+  Container taskBox(double width, double height, BuildContext context, String newName, int newXp) {
+    return Container(
+  width: (width*0.23 < 500 ? 500 : width * 0.23), //OLD: 576
+  height: (height*0.06 < 76 ? 76 : height*0.06), //OLD: 76
+  margin: EdgeInsets.all(10),
+  //padding: EdgeInsets.all(20),
+  decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+            boxShadow: [BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.5),
+              offset: Offset(0, 0),
+              blurRadius: 7,
+              spreadRadius: 5
+            )]),
+    child: 
+    Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+          
+              Checkbox(
+                value: (isChecked == 1 ? true : false),
+                activeColor: Colors.green,
+                onChanged: (newBool){
+                    playClickSound();
+                  
+                  onToggle(newBool == true ? 1 : 0);
+                },
+              ),
+          
+          
+            MaterialButton(
+              onPressed: () {
+                editTaskDialog(context, newName, newXp);
+              },
+
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: (width*0.15 < 300 ? 300 : width*0.15),
+                    child: RichText(
+                      textAlign: TextAlign.left,
+                      overflow: TextOverflow.clip,
+                      maxLines: 2,
+                      softWrap: true,
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        children: [
+                          TextSpan(
+                            text: "$name ",
+                            style: TextStyle(
+                              //decoration: (isChecked == 1 ? TextDecoration.lineThrough : TextDecoration.none)
+                            )
+                            ),
+                          TextSpan(
+                            text: "+$xp",
+                            style: TextStyle(
+                              color: Colors.green,
+                              //decoration: (isChecked == 1 ? TextDecoration.lineThrough : TextDecoration.none)
+                             // fontSize: 
+                            )
+                          )
+                        ]
+                      )
+                      )
+                    
+                    
+                    /*Text(
+                      "$name +$xp",
+                      textAlign: TextAlign.left,
+                      overflow: TextOverflow.clip,
+                      maxLines: 2,
+                      softWrap: true,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),*/
+                  ),
+                ],
+              ),
+
+              
+                
+                
+              
+              
+              ),
+              /*Expanded(
+                child: Container(
+                  alignment: Alignment.centerRight,
+                  child: Text("$xp r", style: TextStyle(color: Colors.green),)
+                  )
+                ),*/
+            
+              
+          
+          
+              //DELETE
+              IconButton(onPressed: () {
+
+                  //TaskData task = TaskData(id: id, content: name, xp: xp, status: isChecked, orderIndex: orderIndex);
+                  onDelete(id);
+                  playPopSound();
+              }, 
+              icon: Icon(
+                Icons.delete,
+                size: 20,
+                )),
+
+                ReorderableDragStartListener(
+                    index: orderIndex,
+                    child: Padding(
+                      padding: EdgeInsets.all(3),
+                      child: Icon(Icons.drag_handle),
+                      ),
+                    )
+          ],
+          ),
+          
+            
+          
+          
+          
+          
+          
+
+        ],
       ),
-    );
+    ),
+  );
   }
 
   Set<void> get keepOrDeleteDialog {

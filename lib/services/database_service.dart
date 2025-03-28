@@ -99,7 +99,7 @@ class DatabaseService{
   catch (e) {
     // ignore: avoid_print
     print("Database Open Error: $e");
-    rethrow; // Throw the error so you can see it in debug mode
+    rethrow;
   }
 }
 /*
@@ -168,7 +168,7 @@ class DatabaseService{
       );
       
 
-    print("DEBUG: Fetched from DB => $taskMaps");
+    //print("DEBUG: Fetched from DB => $taskMaps");
 
     return taskMaps.map((task) => TaskData(
       id: task[_tasksIdColumnName] as int,
