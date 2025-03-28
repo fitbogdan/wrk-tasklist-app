@@ -104,12 +104,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
+   Future<void> loadTasks() async{
+    final dbTasks = await DatabaseService.instance.getTasks();
+    setState(() {
+      tasks = dbTasks;
+    });
+  }
+
   Future<void> addTask(String content, int xp,  int orderIndex) async{
-    //PROBLEM, whenever you add, the indexes do not update, so, if you have a bunch of tasks, and the last 2 ones
-    //are checked only, and then delete a lot of the upper tasks, whenever you generate in new tasks,
-    //they will generate either above, under or in between the last tasks, because I am updating it based on length
-
-
     _databaseService.addTask(content, xp, orderIndex);
     //loadTasks();
       for(int i = orderIndex-1; i<tasks.length; i++){
@@ -126,6 +128,31 @@ class _MyHomePageState extends State<MyHomePage> {
       _databaseService.updateTask(tasks[i]);
     }
   }
+  void updateReps() async
+  {
+    Preferences user = await Preferences.create();
+    user.prefs.setInt('repsTotal', repsTotal);
+    user.prefs.setInt('tasksDoneCount', tasksDoneCount);
+  }
+
+    //Gets last values out of the shared prefs path
+  Future<void> getLast() async{
+    Preferences user = await Preferences.create();
+    //Get prefs!
+    int? repsTotalTemp = user.prefs.getInt('repsTotal');
+    int? tasksDoneCountTemp = user.prefs.getInt('tasksDoneCount');
+    setState(() {
+      toBeat = user.prefs.getInt('to_beat');  
+      toBeatCopy = toBeat ?? 0;
+      repsTotal = repsTotalTemp ?? 0;
+      tasksDoneCount = tasksDoneCountTemp ?? 0;
+    });
+    
+  }
+
+
+
+
 
   Future<void> onToggle(TaskData task, int isChecked) async{
     if(isChecked == 0){
@@ -192,47 +219,13 @@ class _MyHomePageState extends State<MyHomePage> {
     updateReps();
   }
 
-  Future<void> loadTasks() async{
-    final dbTasks = await DatabaseService.instance.getTasks();
-    setState(() {
-      tasks = dbTasks;
-
-      /*tasks.clear();
-      tasksDone.clear();
-      int i1 = 0, i2 = 0;
-      for(int i = 0; i<dbTasks.length; i++){
-          TaskData task = dbTasks[i];
-
-          if(task.status == 1){
-            tasksDone.insert(i1++, task);
-          }
-          else{
-            tasks.insert(i2++, task);
-          }
-      } */
-      //tasks = dbTasks;
-    });
-
-    //OLD
-    //Counts all checked tasks, to give number of reps completed today, without having to save
-    //updateReps();
-  }
+ 
 
 
-  //Gets last values out of the shared prefs path
-  Future<void> getLast() async{
-    Preferences user = await Preferences.create();
-    //Get prefs!
-    int? repsTotalTemp = user.prefs.getInt('repsTotal');
-    int? tasksDoneCountTemp = user.prefs.getInt('tasksDoneCount');
-    setState(() {
-      toBeat = user.prefs.getInt('to_beat');  
-      toBeatCopy = toBeat ?? 0;
-      repsTotal = repsTotalTemp ?? 0;
-      tasksDoneCount = tasksDoneCountTemp ?? 0;
-    });
-    
-  }
+
+
+
+
   //ONLY FOR DEV REASONS, REMOVE FOR PRODUCTION!!!
   Future<void> genTask() async{
     String name = WordPair.random().toString();
@@ -245,12 +238,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //Adds to the total number of reps, for today.
   //Pushes to prefs number of tasks done, so we can
   //add tasks at the correct indexes
-  void updateReps() async
-  {
-    Preferences user = await Preferences.create();
-    user.prefs.setInt('repsTotal', repsTotal);
-    user.prefs.setInt('tasksDoneCount', tasksDoneCount);
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +253,8 @@ class _MyHomePageState extends State<MyHomePage> {
             backgroundColor: Colors.yellow,
             child: Icon(Icons.bolt),
             onPressed: () async {
-              _databaseService.addTask("", 0, tasks.length-tasksDoneCount);
+              addTask("", 0, tasks.length-tasksDoneCount+1);
+              //_databaseService.addTask("", 0, tasks.length-tasksDoneCount);
               loadTasks();
               playPopSound();
             }),
@@ -738,8 +727,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             xpTemp = -1;
                           });
 
-                          
-                          _databaseService.addTask(_task!, _xp!, tasks.length-tasksDoneCount);
+                          addTask(_task!, _xp!, tasks.length-tasksDoneCount+1);
                           setState(() {
                             _task = null;
                             Navigator.pop(context);
