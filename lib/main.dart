@@ -285,104 +285,20 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             SizedBox(height: 10),
             Text("WRK", style: heading),
-
-            SizedBox(height: 20),
-
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Opacity(
-                  opacity: 1,  
-                  child: Text(
-                  
-                  "Reps Today: $repsTotal", 
-                  style: (toBeatCopy > repsTotal ? repsBad : repsGood),
-
-                  )
-                  ),
-                  SizedBox(width: 5),
-                  editRepsButton(context),
-
-                  
-                  SizedBox(width: (width*0.14 < 500 ? 300 : width*0.14)),
-
-
-                  Opacity(
-                  opacity: 1,  
-                  child: MaterialButton(
-                    onPressed: () {
-                      showDialog(context: context, builder: (context) => StatefulBuilder( //This is a stateful builder, so I can set actively update the reps in the window
-                        builder: (context, setDialogState){
-                            return AlertDialog(
-                          shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          ),
-                        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-                        title: Text("Reps to beat: $toBeat"),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [ 
-                              SizedBox(
-                                    width: 250,
-                                    child: TextField(
-                                      keyboardType: TextInputType.number,
-                                      onChanged:(value) {
-                                          int? nr = int.tryParse(value);
-                                          if(nr != null){
-                                            xpTemp = nr;
-                                          }
-                                      },
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                        hintText: "Enter a number",
-                                      ),
-                                    ),
-                                  ),
-                              SizedBox(height: 10),
-
-                              MaterialButton(
-                                
-                                color: Colors.green,
-                                child: Text(
-                                  "Done",
-                                  style: TextStyle(color: Colors.white),
-                                  ),
-                                onPressed: () async {
-                                  if(xpTemp <= -1){
-                                    errorMessage(context, "Enter a (positive) number!");
-                                    xpTemp = -1;
-                                  }
-                                  else{
-
-                                    //Push to prefs
-                                    Preferences user = await Preferences.create();
-                                    user.prefs.setInt('to_beat', xpTemp);
-                                    getLast();
-                                  }
-                                  playClickSound();
-                                  if(context.mounted){
-                                    Navigator.pop(context);
-                                  }
-                                  
-                              }
-                              )
-                            ],
-
-                          ),
-                        );
-                      }
-                        
-                      ));
-                    },
-                    child: Text("To beat: $toBeat", style: smallwords)
-                    )
-                  ),
-                ]),
-            ),
             
-            SizedBox(height: 10,),
+            
+            SizedBox(height: 10),
+            //width: (width*0.23 < 500 ? 500 : width * 0.23),
+
+            taskStats(context, width),
+
+            SizedBox(height: 40),
+            
+
+            SizedBox(height: 10),
+
+            
+    
   
             Flexible(
               flex: 3,
@@ -443,9 +359,193 @@ class _MyHomePageState extends State<MyHomePage> {
               ),*/
 
             //SizedBox(height: 50),
-          ],)
+
+            taskAddChatBox(width, height),
+
+          ],
+
+          
+          
+          
+          )
       )
     );
+  }
+
+  Container taskAddChatBox(double width, double height) {
+    return Container(
+            width: (width*0.23 < 500 ? 600 : width * 0.23+100),
+            height: (height*0.06 < 76 ? 130 : height*0.06+64),
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: const Color.fromARGB(255, 255, 251, 224),
+                        border: Border.all(color: Colors.black),
+                        boxShadow: [
+                        BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.5),
+                        offset: Offset(0, 0),
+                        blurRadius: 4,
+                        spreadRadius: 3
+                      )]),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        flex: 10,
+                        child: TextField(
+                          
+                          onChanged: (value) {
+                          
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "What do you want to do?",
+                          ),
+                        ),
+                        ),       
+                    ],
+                  ),
+
+                  SizedBox(height: 10),
+                  
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: TextField(
+                          onChanged: (value) {
+                            
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "XP"
+                          ),
+                        ),
+                      ),
+
+                      MaterialButton(
+                          onPressed: () {
+                          
+                          },
+                          color: Colors.green,
+                          child: Text(
+                            "Add!",
+                            style: TextStyle(color: Colors.white),
+                            ),
+                      ),
+                    ],
+                  ),
+            
+                        SizedBox(width: 20),
+            
+                        
+                ],
+              ),
+            ),
+          );
+  }
+
+  Center taskStats(BuildContext context, double width) {
+    return Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Opacity(
+                opacity: 1,  
+                child: Text(
+                
+                "Reps Today: $repsTotal", 
+                style: (toBeatCopy > repsTotal ? repsBad : repsGood),
+
+                )
+                ),
+                SizedBox(width: 5),
+                editRepsButton(context),
+
+                
+                SizedBox(width: (width*0.14 < 500 ? 300 : width*0.14)),
+
+
+                Opacity(
+                opacity: 1,  
+                child: MaterialButton(
+                  onPressed: () {
+                    showDialog(context: context, builder: (context) => StatefulBuilder( //This is a stateful builder, so I can set actively update the reps in the window
+                      builder: (context, setDialogState){
+                          return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        ),
+                      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+                      title: Text("Reps to beat: $toBeat"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [ 
+                            SizedBox(
+                                  width: 250,
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    onChanged:(value) {
+                                        int? nr = int.tryParse(value);
+                                        if(nr != null){
+                                          xpTemp = nr;
+                                        }
+                                    },
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                      hintText: "Enter a number",
+                                    ),
+                                  ),
+                                ),
+                            SizedBox(height: 10),
+
+                            MaterialButton(
+                              
+                              color: Colors.green,
+                              child: Text(
+                                "Done",
+                                style: TextStyle(color: Colors.white),
+                                ),
+                              onPressed: () async {
+                                if(xpTemp <= -1){
+                                  errorMessage(context, "Enter a (positive) number!");
+                                  xpTemp = -1;
+                                }
+                                else{
+
+                                  //Push to prefs
+                                  Preferences user = await Preferences.create();
+                                  user.prefs.setInt('to_beat', xpTemp);
+                                  getLast();
+                                }
+                                playClickSound();
+                                if(context.mounted){
+                                  Navigator.pop(context);
+                                }
+                                
+                            }
+                            )
+                          ],
+
+                        ),
+                      );
+                    }
+                      
+                    ));
+                  },
+                  child: Text("To beat: $toBeat", style: smallwords)
+                  )
+                ),
+              ]),
+          );
   }
 
   Widget selectDecorator(child, index, animation) {
