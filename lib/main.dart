@@ -7,6 +7,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:wrk/services/sound_service.dart';
+import 'package:wrk/services/time_service.dart';
 //import 'package:shared_preferences_windows/shared_preferences_windows.dart';
 //import 'package:flutter/services.dart';
 //import 'package:http/http.dart' as http;
@@ -113,7 +114,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> addTask(String content, int xp,  int orderIndex) async{
-    _databaseService.addTask(content, xp, orderIndex);
+    DateTime time = DateTime.now();
+
+    String timeString = timeBuildString(time);
+
+    _databaseService.addTask(content, xp, orderIndex, timeString);
     //loadTasks();
       for(int i = orderIndex-1; i<tasks.length; i++){
         tasks[i].orderIndex++;
@@ -321,6 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           name: task.content, 
                           xp: task.xp, 
                           isChecked: task.status,
+                          timeString: task.timeString,
                           onToggle:(isChecked) {
                             onToggle(task, isChecked);
                           },

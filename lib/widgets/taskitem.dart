@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wrk/services/sound_service.dart';
+import 'package:wrk/services/time_service.dart';
 import 'package:wrk/widgets/strikethrough_container.dart';
+//import 'dart:core';
+
 
 class TaskData{
   final int id;
@@ -8,6 +11,7 @@ class TaskData{
   int xp;
   int status;
   int orderIndex;
+  String timeString;
 
   TaskData({
     required this.id, 
@@ -15,16 +19,17 @@ class TaskData{
     required this.xp, 
     required this.status,
     required this.orderIndex,
+    required this.timeString,
     });
 
   Map<String, Object?> toMap(){
-    return {'id' : id, 'content' : content, 'xp' : xp, 'status' : status, 'order_index' : orderIndex};
+    return {'id' : id, 'content' : content, 'xp' : xp, 'status' : status, 'order_index' : orderIndex, 'task_time' : timeString};
   }
 
   @override
   String toString()
   {
-    return 'Task{id: $id, content: $content, xp: $xp, status: $status, index: $orderIndex}';
+    return 'Task{id: $id, content: $content, xp: $xp, status: $status, index: $orderIndex, time: $timeString}';
   }  
 
 }
@@ -35,6 +40,7 @@ class TaskItem extends StatelessWidget {
   final int id;
   final int isChecked;
   final int orderIndex;
+  final String timeString;
   final Function(int) onToggle;
   final Function(int) onDelete;
   final Function(TaskData) onEdit;
@@ -51,6 +57,7 @@ class TaskItem extends StatelessWidget {
     required this.onDelete,
     required this.onEdit,
     required this.orderIndex,
+    required this.timeString,
   });
 
   @override
@@ -81,6 +88,7 @@ class TaskItem extends StatelessWidget {
     return Container(
   width: (width*0.23 < 500 ? 500 : width * 0.23), //OLD: 576
   height: (height*0.06 < 76 ? 76 : height*0.06), //OLD: 76
+  
   margin: EdgeInsets.all(10),
   //padding: EdgeInsets.all(20),
   decoration: BoxDecoration(
@@ -117,7 +125,7 @@ class TaskItem extends StatelessWidget {
               onPressed: () {
                 editTaskDialog(context, newName, newXp);
               },
-
+            
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -148,47 +156,44 @@ class TaskItem extends StatelessWidget {
                         ]
                       )
                       )
-                    
-                    
-                    /*Text(
-                      "$name +$xp",
-                      textAlign: TextAlign.left,
-                      overflow: TextOverflow.clip,
-                      maxLines: 2,
-                      softWrap: true,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),*/
                   ),
                 ],
               ),
-
+            
               
                 
                 
               
               
               ),
-              /*Expanded(
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Text("$xp r", style: TextStyle(color: Colors.green),)
-                  )
-                ),*/
-            
               
-          
+              Flexible(
+                flex: 1,
+                child: IconButton(
+                  onPressed: () {
+                    showDialog(context: context, builder:(context) => AlertDialog(
+                      title: Text("$timeString"),
+
+                      //TODO: get task date
+                    ),
+                    );
+                  }, 
+                  icon: Icon(Icons.info)
+                  )
+                ),
           
               //DELETE
-              IconButton(onPressed: () {
-
-                  //TaskData task = TaskData(id: id, content: name, xp: xp, status: isChecked, orderIndex: orderIndex);
-                  onDelete(id);
-                  playPopSound();
-              }, 
-              icon: Icon(
-                Icons.delete,
-                size: 20,
-                )),
+              Flexible(
+                flex: 1,
+                child: IconButton(onPressed: () {
+                    onDelete(id);
+                    playPopSound();
+                }, 
+                icon: Icon(
+                  Icons.delete,
+                  size: 20,
+                  )),
+              ),
 
                 ReorderableDragStartListener(
                     index: orderIndex,
@@ -352,7 +357,7 @@ class TaskItem extends StatelessWidget {
             onPressed: (){
               
 
-              TaskData newTask = TaskData(id: id, content: newName, xp: newXp, status: isChecked, orderIndex: orderIndex);
+              TaskData newTask = TaskData(id: id, content: newName, xp: newXp, status: isChecked, orderIndex: orderIndex, timeString: timeString);
 
               onEdit(newTask);
 

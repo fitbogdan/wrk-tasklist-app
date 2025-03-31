@@ -30,6 +30,7 @@ class DatabaseService{
   final String _tasksStatusColumnName = "status";
   final String _tasksXpColumnName = "xp";
   final String _tasksIndexColumnName = "order_index";
+  final String _tasksTimeColumnName = 'task_time';
 
   DatabaseService._constructor();
 
@@ -61,7 +62,8 @@ class DatabaseService{
       final database = await databaseFactory.openDatabase(
         databasePath,
         options: OpenDatabaseOptions(
-          version: 3, 
+          version: 4, 
+          singleInstance: true,
           onCreate: (db, version) async {
             try {
               await db.execute('''
@@ -70,7 +72,8 @@ class DatabaseService{
                   $_tasksContentColumnName TEXT NOT NULL,
                   $_tasksStatusColumnName INTEGER NOT NULL,
                   $_tasksXpColumnName INTEGER NOT NULL,
-                  $_tasksIndexColumnName INTEGER DEFAULT 0
+                  $_tasksIndexColumnName INTEGER DEFAULT 0,
+                  $_tasksTimeColumnName TEXT DEFAULT 'a'
                 )
               ''');
             } catch (e) {
@@ -79,9 +82,14 @@ class DatabaseService{
             }
           },
           onUpgrade: (db, oldVersion, newVersion) async {
-            if (oldVersion < 2) {
+            if (oldVersion < 4) {
               try {
-                await db.execute('ALTER TABLE $_tasksTableName ADD COLUMN $_tasksIndexColumnName INTEGER DEFAULT 0');
+                await db.execute(
+                  '''
+                    ALTER TABLE $_tasksTableName 
+                    ADD COLUMN $_tasksTimeColumnName TEXT DEFAULT 'a'
+                  '''
+                );
               } 
               
               catch (e) {
@@ -146,7 +154,7 @@ class DatabaseService{
     return database; 
   }*/
 
-  void addTask(String content, int xp, int index) async{
+  void addTask(String content, int xp, int index, String time) async{
     final db = await database; //Getting a refference to the DB
     await db.insert(//Just an insert function!
       _tasksTableName, {
@@ -154,6 +162,7 @@ class DatabaseService{
         _tasksXpColumnName: xp,  //XP
         _tasksStatusColumnName: 0, //Status
         _tasksIndexColumnName: index,
+        _tasksTimeColumnName: time,
       });
   }
 
@@ -176,6 +185,7 @@ class DatabaseService{
       xp: task[_tasksXpColumnName] as int,
       status: task[_tasksStatusColumnName] as int,
       orderIndex: task["order_index"] as int,
+      timeString: task[_tasksTimeColumnName] as String,
     )).toList();
   }
 
