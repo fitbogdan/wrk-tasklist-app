@@ -32,6 +32,13 @@ class DatabaseService{
   final String _tasksIndexColumnName = "order_index";
   final String _tasksTimeColumnName = 'task_time';
 
+  //POINTS DB NAMES:
+  final String _pointsTableName = "points_table";
+  final String _pointsIdColumnName = "id";
+  final String _pointsDateColumnName = "date";
+  final String _pointsXpColumnName = "xp";
+  
+
   DatabaseService._constructor();
 
   Future<Database> get database async {
@@ -98,6 +105,49 @@ class DatabaseService{
               }
             }
           },
+          onDowngrade: (db, oldVersion, newVersion) async{
+
+            try{
+                if(newVersion == 3){
+                await db.execute('''
+                CREATE TABLE ${_tasksTableName}_temp (
+                    $_tasksIdColumnName INTEGER PRIMARY KEY,
+                    $_tasksContentColumnName TEXT NOT NULL,
+                    $_tasksStatusColumnName INTEGER NOT NULL,
+                    $_tasksXpColumnName INTEGER NOT NULL,
+                    $_tasksIndexColumnName INTEGER DEFAULT 0
+                  )
+                ''');
+
+                await db.execute('''
+                INSERT INTO ${_tasksTableName}_temp (
+                $_tasksIdColumnName,
+                $_tasksContentColumnName,
+                $_tasksStatusColumnName,
+                $_tasksXpColumnName,
+                $_tasksIndexColumnName
+                )
+                SELECT
+                  $_tasksIdColumnName,
+                  $_tasksContentColumnName,
+                  $_tasksStatusColumnName,
+                  $_tasksXpColumnName,
+                  $_tasksIndexColumnName
+                FROM $_tasksTableName
+                ''');
+
+                await db.execute('DROP TABLE $_tasksTableName');
+
+                await db.execute('ALTER TABLE ${_tasksTableName}_temp RENAME TO $_tasksTableName');
+
+              }
+            }
+            catch(e){
+              // ignore: avoid_print
+              print("Error in DOWNGRADE");
+            }
+            
+          }
         ),
       );
       return database;
@@ -110,49 +160,52 @@ class DatabaseService{
     rethrow;
   }
 }
-/*
-  Future<Database> getDatabase() async{
 
-    //Desktop initialization
-    if(Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-    {
-      //Only for desktop
-      sqfliteFfiInit();
-      //Only for desktop
-      databaseFactory = databaseFactoryFfi;
-    }
-    
-    final databaseDirPath = await getDatabasesPath();
-    final databasePath = join(databaseDirPath, "master_db.db");
-    //print(databasePath);
+Future<Database> getPointsDatabase() async{
 
+  if(Platform.isWindows || Platform.isMacOS || Platform.isLinux){
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
 
-    final database = await databaseFactory.openDatabase(
-      databasePath,//Open a new db in this path
-      options: OpenDatabaseOptions( //With these options
-        onCreate: (db, version){
-        //SQL comand to create db
-        db.execute('''
-        CREATE TABLE $_tasksTableName (
-          $_tasksIdColumnName INTEGER PRIMARY KEY,
-          $_tasksContentColumnName TEXT NOT NULL,
-          $_tasksStatusColumnName INTEGER NOT NULL,
-          $_tasksXpColumnName INTEGER NOT NULL,
-          $_tasksIndexColumnName INTEGER DEFAULT 0
-        )
-        ''');
-        },
-        version: 2,
-        onUpgrade: (db, oldVersion, newVersion) async {
-          if(oldVersion < 2){
-            await db.execute('ALTER TABLE $_tasksTableName ADD COLUMN $_tasksIndexColumnName INTEGER DEFAULT 0');
+  final databaseDirPath = await getDatabasesPath();
+  final pointsDatabasePath = join(databaseDirPath, "points_db.db");
+
+  try{
+    final pointsDatabase = await databaseFactory.openDatabase(
+      pointsDatabasePath,
+      options: OpenDatabaseOptions(
+        version: 1,
+        onCreate:(db, version) {
+          try{
+            db.execute('''
+            CREATE TABLE $_pointsTableName(
+            $_pointsIdColumnName INTEGER PRIMARY KEY,
+            $_pointsDateColumnName DATE NOT NULL,
+            $_pointsXpColumnName INTEGER NOT NULL
+            )
+            ''');
           }
+          catch(e){
+            print("ERROR: Creating points DB");
+          }
+          
         },
-        ),
-      );
-    //Gives the db to the database getter function, to use everywhere in the project!
-    return database; 
-  }*/
+      )
+    );
+
+    return pointsDatabase;
+  }
+  catch(e){
+
+    //ignore: avoid_print
+    print("Error in opening POINTS DB");
+    rethrow;
+  }
+
+  
+}
+
 
   void addTask(String content, int xp, int index, String time) async{
     final db = await database; //Getting a refference to the DB
