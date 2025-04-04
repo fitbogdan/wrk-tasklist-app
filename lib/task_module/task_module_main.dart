@@ -319,6 +319,98 @@ class _TaskModuleState extends State<TaskModuleMain>{
     );
   }
 
+  FloatingActionButton quickAddTask() {
+    return FloatingActionButton(
+          backgroundColor: Colors.yellow,
+          child: Icon(Icons.bolt),
+          onPressed: () async {
+            addTask("", 0, tasks.length-tasksDoneCount+1);
+            //_databaseService.addTask("", 0, tasks.length-tasksDoneCount);
+            loadTasks();
+            playPopSound();
+          });
+  }
+
+  Container taskAddChatBox(double width, double height) {
+    return Container(
+            width: (width*0.23 < 500 ? 600 : width * 0.23+100),
+            height: (height*0.06 < 76 ? 130 : height*0.06+64),
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: const Color.fromARGB(255, 255, 251, 224),
+                        border: Border.all(color: Colors.black),
+                        boxShadow: [
+                        BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.5),
+                        offset: Offset(0, 0),
+                        blurRadius: 4,
+                        spreadRadius: 3
+                      )]),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        flex: 10,
+                        child: TextField(
+                          
+                          onChanged: (value) {
+                          
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "What do you want to do?",
+                          ),
+                        ),
+                        ),       
+                    ],
+                  ),
+
+                  SizedBox(height: 10),
+                  
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: TextField(
+                          onChanged: (value) {
+                            
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "XP"
+                          ),
+                        ),
+                      ),
+
+                      MaterialButton(
+                          onPressed: () {
+                          
+                          },
+                          color: Colors.green,
+                          child: Text(
+                            "Add!",
+                            style: TextStyle(color: Colors.white),
+                            ),
+                      ),
+                    ],
+                  ),
+            
+                        SizedBox(width: 20),
+            
+                        
+                ],
+              ),
+            ),
+          );
+  }
+
   Center taskStats(BuildContext context, double width) {
     return Center(
             child: Row(
@@ -519,6 +611,48 @@ class _TaskModuleState extends State<TaskModuleMain>{
             );
   }
 
+
+//--------------------OLD----------------------- last is not toBeat
+  MaterialButton plusButton(StateSetter setDialogState) {
+    return MaterialButton(
+      color: Colors.green,
+      child: Icon(
+        Icons.add,
+        size: 20.0,
+        color: Colors.white,
+        ),
+      onPressed:() {
+      playClickSound();
+      setDialogState(() {
+        last = last+1;
+      });
+      setState(() {
+        last = last;
+      });
+    },);
+  }
+//---------------------------------------------------------------------
+//--------------------OLD----------------------- last is not toBeat
+  MaterialButton minusButton(StateSetter setDialogState) {
+    return MaterialButton(
+      color: Colors.red,
+      child: Icon(
+        Icons.remove,
+        size: 20.0,
+        color: Colors.white,
+        ),
+      onPressed:() {
+      playClickSound();
+      setDialogState(() {
+        last = last-1;
+      });
+      setState(() {
+        last = last;
+      });
+    },);
+  }
+//---------------------------------------------------------------------
+
   Future<dynamic> errorMessage(BuildContext context, String message) {
     return showDialog(context: context, builder: (BuildContext dialogContext) {
       Future.delayed(Duration(seconds: 1), () {
@@ -542,7 +676,40 @@ class _TaskModuleState extends State<TaskModuleMain>{
     });
   }
 
-  
+  FloatingActionButton randomTaskButton() {
+    return FloatingActionButton(
+                  backgroundColor: Colors.red,
+                  onPressed:() {
+                    genTask();
+                    playPopSound();
+                    },
+                  child: Icon(Icons.add),
+                );
+  }
+
+  FloatingActionButton printButton() {
+    return FloatingActionButton(
+                  // ignore: avoid_print
+                  onPressed:() {
+                    //ignore: avoid_print
+                    print("$tasks \n\n");
+
+
+                    for(int i=0; i < tasks.length; i++){
+                      print("${tasks[i].content} ${tasks[i].orderIndex}");
+                    }
+
+                    print("\n $tasksDoneCount");
+                    //print("\nTASKS: $tasks");
+                    //print("\nTASKS DONE: $tasksDone");
+                    //ignore: avoid_print
+                    
+                  },
+                  child: Icon(Icons.keyboard),
+                );
+  }
+
+
   Widget _addTaskButton()
   {
     return 
@@ -651,52 +818,5 @@ class _TaskModuleState extends State<TaskModuleMain>{
           Icons.add
         ),
     );
-
   }
-
-  FloatingActionButton randomTaskButton() {
-    return FloatingActionButton(
-                  backgroundColor: Colors.red,
-                  onPressed:() {
-                    genTask();
-                    playPopSound();
-                    },
-                  child: Icon(Icons.add),
-                );
-  }
-
-  FloatingActionButton printButton() {
-    return FloatingActionButton(
-                  // ignore: avoid_print
-                  onPressed:() {
-                    //ignore: avoid_print
-                    print("$tasks \n\n");
-
-
-                    for(int i=0; i < tasks.length; i++){
-                      print("${tasks[i].content} ${tasks[i].orderIndex}");
-                    }
-
-                    print("\n $tasksDoneCount");
-                    //print("\nTASKS: $tasks");
-                    //print("\nTASKS DONE: $tasksDone");
-                    //ignore: avoid_print
-                    
-                  },
-                  child: Icon(Icons.keyboard),
-                );
-  }
-
-  FloatingActionButton quickAddTask() {
-    return FloatingActionButton(
-          backgroundColor: Colors.yellow,
-          child: Icon(Icons.bolt),
-          onPressed: () async {
-            addTask("", 0, tasks.length-tasksDoneCount+1);
-            //_databaseService.addTask("", 0, tasks.length-tasksDoneCount);
-            loadTasks();
-            playPopSound();
-          });
-  }
-  
 }
