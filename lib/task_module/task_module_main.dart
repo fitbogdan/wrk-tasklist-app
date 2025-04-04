@@ -46,16 +46,20 @@ class _TaskModuleState extends State<TaskModuleMain>{
   @override
   void initState() {
     super.initState();
-    loadTasks();
-    getLast();
 
+      loadTasks();
+      getLast();
+    
   }
 
   Future<void> loadTasks() async{
     final dbTasks = await DatabaseService.instance.getTasks();
-    setState(() {
+    if(mounted){
+      setState(() {
       tasks = dbTasks;
     });
+    }
+    
   }
 
   Future<void> addTask(String content, int xp,  int orderIndex) async{

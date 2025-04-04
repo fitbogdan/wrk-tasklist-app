@@ -172,7 +172,7 @@ class TaskItem extends StatelessWidget {
                 child: IconButton(
                   onPressed: () {
                     showDialog(context: context, builder:(context) => AlertDialog(
-                      title: Text("$timeString"),
+                      title: Text(timeString),
 
                       //TODO: get task date
                     ),

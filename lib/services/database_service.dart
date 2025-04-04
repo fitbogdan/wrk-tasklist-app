@@ -254,18 +254,21 @@ Future<Database> getPointsDatabase() async{
     final db = await pointsDatabase;
 
     final List<Map<String, dynamic>> points = await db.rawQuery('''
-    SELECT $_pointsDateColumnName, SUM($_pointsXpColumnName) as total_points
+    SELECT $_pointsIdColumnName, $_pointsDateColumnName, SUM($_pointsXpColumnName) as total_points
     FROM $_pointsTableName
-    GOUP BY $_pointsDateColumnName
+    GROUP BY $_pointsDateColumnName
     ''');
 
 
+    //print(points);
+
+  //TODO: FIX EXCEPTION ---- The problem is that I am not pulling the ID with my SQL
 
     return points.map(
       (point) => PointsData(
         id: point[_pointsIdColumnName] as int, 
         date: point[_pointsDateColumnName] as String, 
-        points: point[_pointsXpColumnName] as int,
+        points: point['total_points'] as int,
       )).toList();
   } 
 
