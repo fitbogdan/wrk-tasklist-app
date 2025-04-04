@@ -1,8 +1,9 @@
 import 'dart:io';
-import '../widgets/taskitem.dart';
+import '../task_module/taskitem.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wrk/widgets/progress_module.dart';
 //import 'package:wrk/main.dart';
 //import 'package:sqflite_common_ffi';
 
@@ -22,6 +23,7 @@ class Preferences{
 
 class DatabaseService{
   static Database? _db;
+  static Database? _pointsDb;
   static final DatabaseService instance = DatabaseService._constructor();
 
   final String _tasksTableName = "tasks";
@@ -48,6 +50,13 @@ class DatabaseService{
     //If not, use the function that creates db
     _db = await getDatabase();
     return _db!;
+  }
+
+  Future<Database> get pointsDatabase async{
+    if(_pointsDb != null) return _pointsDb!;
+
+    _pointsDb = await getPointsDatabase();
+    return _pointsDb!;
   }
 
 
@@ -206,6 +215,59 @@ Future<Database> getPointsDatabase() async{
   
 }
 
+  void addXp(int points, String date, int id) async{
+    final db = await pointsDatabase;
+    await db.insert(
+      _pointsTableName, {
+      _pointsIdColumnName: id,
+      _pointsDateColumnName: date,
+      _pointsXpColumnName: points
+    });
+  }
+
+  void deletePointEntry(int id) async{
+    final db = await pointsDatabase;
+    await db.delete(
+      _pointsTableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+  void editPointEntry(PointsData obj) async{
+    final db = await pointsDatabase;
+
+    Map<String, dynamic> map = {};
+
+    map[_pointsDateColumnName] = obj.date;
+    map[_pointsIdColumnName] = obj.id;
+    map[_pointsXpColumnName] = obj.points;
+
+    await db.update(
+      _pointsTableName,
+      map,
+      where: '$_pointsIdColumnName = ?',
+      whereArgs: [obj.id],
+    );
+  }
+
+  Future<List<PointsData>> getPointsHistory() async{
+    final db = await pointsDatabase;
+
+    final List<Map<String, dynamic>> points = await db.rawQuery('''
+    SELECT $_pointsDateColumnName, SUM($_pointsXpColumnName) as total_points
+    FROM $_pointsTableName
+    GOUP BY $_pointsDateColumnName
+    ''');
+
+
+
+    return points.map(
+      (point) => PointsData(
+        id: point[_pointsIdColumnName] as int, 
+        date: point[_pointsDateColumnName] as String, 
+        points: point[_pointsXpColumnName] as int,
+      )).toList();
+  } 
 
   void addTask(String content, int xp, int index, String time) async{
     final db = await database; //Getting a refference to the DB
@@ -218,7 +280,6 @@ Future<Database> getPointsDatabase() async{
         _tasksTimeColumnName: time,
       });
   }
-
 
 
   Future<List<TaskData>> getTasks() async{
@@ -262,27 +323,5 @@ Future<Database> getPointsDatabase() async{
       whereArgs: [task.id],
     );
   }
-
-  Future<void> updateTaskName(TaskData task) async{
-    final db = await database;
-
-    await db.update(
-      _tasksTableName,
-      task.toMap(),
-      where: '$_tasksContentColumnName = ?',
-      whereArgs: [task.content]
-    );
-  }
-
-  Future<void> updateTaskXp (TaskData task) async{
-    final db = await database;
-
-    await db.update(_tasksTableName,
-     task.toMap(),
-     where: '$_tasksXpColumnName = ?',
-     whereArgs: [task.xp]
-     );
-  }
-
 }
 

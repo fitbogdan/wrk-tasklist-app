@@ -1,77 +1,22 @@
-//import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:wrk/task_module/taskitem.dart';
 import 'package:wrk/services/database_service.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'dart:io';
-import 'dart:math';
-import 'package:wrk/services/sound_service.dart';
 import 'package:wrk/services/time_service.dart';
-import 'task_module/task_module_main.dart';
-//import 'package:shared_preferences_windows/shared_preferences_windows.dart';
-//import 'package:flutter/services.dart';
-//import 'package:http/http.dart' as http;
-//import 'dart:convert';
+import 'package:wrk/services/sound_service.dart';
+import 'package:english_words/english_words.dart';
+import 'dart:math';
 
 
-
-
-
-void main() {
-
-  //ONLY for desktop.
-  if(Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-    {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    }
-
-
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(183, 48, 48, 48)),
-          scaffoldBackgroundColor: Colors.white,
-          textTheme: TextTheme(
-          headlineLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-          bodyMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          bodySmall: TextStyle(fontSize: 13, fontWeight: FontWeight.normal),
-        ),
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.black,
-          selectionColor: Colors.black,
-          selectionHandleColor: Colors.black,
-        )
-      ),
-      home: const MyHomePage(),
-    );
-  }
-}
-
-
-
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, this.title = ''});
-  final String title;
- 
+class TaskModuleMain extends StatefulWidget{
+  const TaskModuleMain ({
+    super.key
+    });
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<StatefulWidget> createState() => _TaskModuleState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-
+class _TaskModuleState extends State<TaskModuleMain>{
 
   static TextStyle heading = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static TextStyle headingNonBold = TextStyle(fontSize: 25, color: Colors.white);
@@ -80,11 +25,8 @@ class _MyHomePageState extends State<MyHomePage> {
   static TextStyle repsGood = TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.green);
   static TextStyle dialogError = TextStyle(fontWeight: FontWeight.w700,fontSize: 20, color: Colors.black);
 
-  // ignore: unused_field
   final DatabaseService _databaseService = DatabaseService.instance;
 
-  
-  
   int reps = 0;
   int last = 8;
   int repsTemp = -1;
@@ -109,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
-   Future<void> loadTasks() async{
+  Future<void> loadTasks() async{
     final dbTasks = await DatabaseService.instance.getTasks();
     setState(() {
       tasks = dbTasks;
@@ -158,9 +100,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     
   }
-
-
-
 
 
   Future<void> onToggle(TaskData task, int isChecked) async{
@@ -231,13 +170,6 @@ class _MyHomePageState extends State<MyHomePage> {
     updateReps();
   }
 
- 
-
-
-
-
-
-
   //ONLY FOR DEV REASONS, REMOVE FOR PRODUCTION!!!
   Future<void> genTask() async{
     String name = WordPair.random().toString();
@@ -250,77 +182,16 @@ class _MyHomePageState extends State<MyHomePage> {
   //Adds to the total number of reps, for today.
   //Pushes to prefs number of tasks done, so we can
   //add tasks at the correct indexes
-  
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final List<Widget> ViewList = [
-    TaskModuleMain(),
-    Text("Hello world 2")
-  ];
-  int currentView = 0;
+
+
+
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     double width = MediaQuery.sizeOf(context).width;
     double height = MediaQuery.sizeOf(context).height;
     return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 59, 180, 236),//Theme.of(context).scaffoldBackgroundColor,
-        title: Text("WRK", style: headingNonBold),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-          size: 30
-        ),
-        automaticallyImplyLeading: true,
-        leading: Padding(
-          padding: EdgeInsets.only(left:16),
-          child: IconButton(
-             icon:  Icon(Icons.menu),
-            onPressed: () {
-              _scaffoldKey.currentState?.openDrawer();
-            },
-            ),
-          ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue
-                ),
-              child: Text(
-                "Menu",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  ),
-                )
-              ),
-              ListTile(
-                leading: Icon(Icons.home),
-                title: Text("Tasks"),
-                onTap: () {
-                  //TODO: Make this switch the position in the list of views
-                },
-                ),
-
-              ListTile(
-                leading: Icon(Icons.history),
-                title: Text("Progression"),
-                onTap: () {
-                  
-                },
-              )
-
-              
-              
-          ],
-        ),
-      ),
-      /*floatingActionButton: Row(
+      floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
 
@@ -346,103 +217,106 @@ class _MyHomePageState extends State<MyHomePage> {
           )
 //----------------------------Dev end----------------------------------------------
 ],
-  ),*/
+  ),
       body: Center(
-        child: ViewList[currentView],
-      )
-    );
-  }
-
-  FloatingActionButton quickAddTask() {
-    return FloatingActionButton(
-          backgroundColor: Colors.yellow,
-          child: Icon(Icons.bolt),
-          onPressed: () async {
-            addTask("", 0, tasks.length-tasksDoneCount+1);
-            //_databaseService.addTask("", 0, tasks.length-tasksDoneCount);
-            loadTasks();
-            playPopSound();
-          });
-  }
-
-  Container taskAddChatBox(double width, double height) {
-    return Container(
-            width: (width*0.23 < 500 ? 600 : width * 0.23+100),
-            height: (height*0.06 < 76 ? 130 : height*0.06+64),
-            margin: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: const Color.fromARGB(255, 255, 251, 224),
-                        border: Border.all(color: Colors.black),
-                        boxShadow: [
-                        BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.5),
-                        offset: Offset(0, 0),
-                        blurRadius: 4,
-                        spreadRadius: 3
-                      )]),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Flexible(
-                        flex: 10,
-                        child: TextField(
-                          
-                          onChanged: (value) {
-                          
-                          },
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "What do you want to do?",
+        child: Column(
+              children: [
+                SizedBox(height: 10),
+                //width: (width*0.23 < 500 ? 500 : width * 0.23),
+        
+                taskStats(context, width),
+        
+                SizedBox(height: 30),
+                Flexible(
+                  flex: 3,
+                  child: SizedBox(
+                    width: (width*0.23 < 500 ? 500+25 : width * 0.23+25),
+                    child: ReorderableListView.builder(
+                      proxyDecorator: selectDecorator,
+                      buildDefaultDragHandles: false,
+                      itemCount: tasks.length, 
+                      itemBuilder:(context, index) {
+                        var task = tasks[index];
+                        return Row(
+                          key: ValueKey(task.id),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TaskItem(
+                              orderIndex: index,
+                              id: task.id,
+                              name: task.content, 
+                              xp: task.xp, 
+                              isChecked: task.status,
+                              timeString: task.timeString,
+                              onToggle:(isChecked) {
+                                onToggle(task, isChecked);
+                              },
+                              onDelete:(id) {
+                                onDelete(id, task, index);
+                              },
+                              onEdit: (newTask) async {
+                                onEdit(newTask, task, index);
+                              }
                           ),
-                        ),
-                        ),       
-                    ],
-                  ),
-
-                  SizedBox(height: 10),
-                  
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: TextField(
-                          onChanged: (value) {
-                            
-                          },
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "XP"
-                          ),
-                        ),
+                        ],);
+                      }, 
+                    
+                      onReorder:(oldIndex, newIndex) async {
+                        if(oldIndex < newIndex){
+                            newIndex--;
+                          }                
+                          final TaskData item = tasks[oldIndex];
+                          tasks.removeAt(oldIndex);
+                          tasks.insert(newIndex, item);                      
+                          for(int i = 0; i < tasks.length; i++){
+                            tasks[i].orderIndex = i+1;
+                            _databaseService.updateTask(tasks[i]);
+                          }
+        
+                        setState(() {
+                        });
+                      },
                       ),
-
-                      MaterialButton(
-                          onPressed: () {
-                          
-                          },
-                          color: Colors.green,
-                          child: Text(
-                            "Add!",
-                            style: TextStyle(color: Colors.white),
-                            ),
+                  )
+                ),
+        
+        
+                /*Flexible(
+                  flex: 1,
+                  child: Text("Archive")
+                  ),*/
+        
+                //SizedBox(height: 50),
+        
+        
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Always delete reps too",
+                      style: Theme.of(context).textTheme.bodySmall,
                       ),
-                    ],
+                    Switch(
+                      value: delete, 
+                      onChanged:(value) {
+                      setState(() {
+                        delete = value;
+                      });
+                    },)
+                  ],
                   ),
-            
-                        SizedBox(width: 20),
-            
-                        
-                ],
+        
+                SizedBox(height: 20)
+                //taskAddChatBox(width, height),
+        
+              ],
+        
+              
+              
+              
               ),
-            ),
-          );
+      ),
+    );
   }
 
   Center taskStats(BuildContext context, double width) {
@@ -645,48 +519,6 @@ class _MyHomePageState extends State<MyHomePage> {
             );
   }
 
-
-//--------------------OLD----------------------- last is not toBeat
-  MaterialButton plusButton(StateSetter setDialogState) {
-    return MaterialButton(
-      color: Colors.green,
-      child: Icon(
-        Icons.add,
-        size: 20.0,
-        color: Colors.white,
-        ),
-      onPressed:() {
-      playClickSound();
-      setDialogState(() {
-        last = last+1;
-      });
-      setState(() {
-        last = last;
-      });
-    },);
-  }
-//---------------------------------------------------------------------
-//--------------------OLD----------------------- last is not toBeat
-  MaterialButton minusButton(StateSetter setDialogState) {
-    return MaterialButton(
-      color: Colors.red,
-      child: Icon(
-        Icons.remove,
-        size: 20.0,
-        color: Colors.white,
-        ),
-      onPressed:() {
-      playClickSound();
-      setDialogState(() {
-        last = last-1;
-      });
-      setState(() {
-        last = last;
-      });
-    },);
-  }
-//---------------------------------------------------------------------
-
   Future<dynamic> errorMessage(BuildContext context, String message) {
     return showDialog(context: context, builder: (BuildContext dialogContext) {
       Future.delayed(Duration(seconds: 1), () {
@@ -710,40 +542,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  FloatingActionButton randomTaskButton() {
-    return FloatingActionButton(
-                  backgroundColor: Colors.red,
-                  onPressed:() {
-                    genTask();
-                    playPopSound();
-                    },
-                  child: Icon(Icons.add),
-                );
-  }
-
-  FloatingActionButton printButton() {
-    return FloatingActionButton(
-                  // ignore: avoid_print
-                  onPressed:() {
-                    //ignore: avoid_print
-                    print("$tasks \n\n");
-
-
-                    for(int i=0; i < tasks.length; i++){
-                      print("${tasks[i].content} ${tasks[i].orderIndex}");
-                    }
-
-                    print("\n $tasksDoneCount");
-                    //print("\nTASKS: $tasks");
-                    //print("\nTASKS DONE: $tasksDone");
-                    //ignore: avoid_print
-                    
-                  },
-                  child: Icon(Icons.keyboard),
-                );
-  }
-
-
+  
   Widget _addTaskButton()
   {
     return 
@@ -852,6 +651,52 @@ class _MyHomePageState extends State<MyHomePage> {
           Icons.add
         ),
     );
+
   }
 
+  FloatingActionButton randomTaskButton() {
+    return FloatingActionButton(
+                  backgroundColor: Colors.red,
+                  onPressed:() {
+                    genTask();
+                    playPopSound();
+                    },
+                  child: Icon(Icons.add),
+                );
+  }
+
+  FloatingActionButton printButton() {
+    return FloatingActionButton(
+                  // ignore: avoid_print
+                  onPressed:() {
+                    //ignore: avoid_print
+                    print("$tasks \n\n");
+
+
+                    for(int i=0; i < tasks.length; i++){
+                      print("${tasks[i].content} ${tasks[i].orderIndex}");
+                    }
+
+                    print("\n $tasksDoneCount");
+                    //print("\nTASKS: $tasks");
+                    //print("\nTASKS DONE: $tasksDone");
+                    //ignore: avoid_print
+                    
+                  },
+                  child: Icon(Icons.keyboard),
+                );
+  }
+
+  FloatingActionButton quickAddTask() {
+    return FloatingActionButton(
+          backgroundColor: Colors.yellow,
+          child: Icon(Icons.bolt),
+          onPressed: () async {
+            addTask("", 0, tasks.length-tasksDoneCount+1);
+            //_databaseService.addTask("", 0, tasks.length-tasksDoneCount);
+            loadTasks();
+            playPopSound();
+          });
+  }
+  
 }
