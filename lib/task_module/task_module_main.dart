@@ -6,6 +6,8 @@ import 'package:wrk/services/sound_service.dart';
 import 'package:english_words/english_words.dart';
 import 'dart:math';
 
+import 'package:wrk/widgets/progress_module.dart';
+
 
 class TaskModuleMain extends StatefulWidget{
   const TaskModuleMain ({
@@ -62,7 +64,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
     
   }
 
-  Future<void> addTask(String content, int xp,  int orderIndex) async{
+  Future<void> addTask(content, int xp,  int orderIndex) async{
     DateTime time = DateTime.now();
 
     String timeString = timeBuildString(time);
@@ -110,13 +112,13 @@ class _TaskModuleState extends State<TaskModuleMain>{
     if(isChecked == 0){
         tasksDoneCount--;
         repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
-        if(task.status == 1){
+        //if(task.status == 1){
           TaskData aux = tasks.removeAt(task.orderIndex-1);
           aux.orderIndex = tasks.length-tasksDoneCount+1;
           tasks.insert(aux.orderIndex-1, aux);
 
           refreshOrder(tasks);
-        }
+        //}
 
         }
         else{
@@ -131,7 +133,18 @@ class _TaskModuleState extends State<TaskModuleMain>{
           tasks.insert(tasks.length, aux);
           refreshOrder(tasks);
         }
-        task.status = isChecked;  
+        task.status = isChecked;
+
+      String time = timeBuildString(DateTime.now());
+      
+
+      if(task.status == 0){
+        await _databaseService.deletePointEntry(task.id);
+      }
+      if(task.status == 1){
+        await _databaseService.addXp(task.xp, time, task.id);
+      }
+      //await _databaseService.editPointEntry(PointsData(id: task.id, date: time, points: (task.status == 0 ? 0 : task.xp)));  
       await _databaseService.updateTask(task);
       loadTasks();
       updateReps();
@@ -146,12 +159,13 @@ class _TaskModuleState extends State<TaskModuleMain>{
             if(delete == true){
                 repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
             }
-            
           }
           tasks.removeAt(index);
           refreshOrder(tasks);
       });
-
+      if(task.status == 1){
+        await _databaseService.deletePointEntry(task.id);
+      }
       await _databaseService.deleteTask(task);
       await loadTasks();
       updateReps();
@@ -170,6 +184,10 @@ class _TaskModuleState extends State<TaskModuleMain>{
       tasks[index] = newTask;
     });
     await _databaseService.updateTask(newTask);
+    if(newTask.status == 1){
+      await _databaseService.editPointEntry(PointsData(id: newTask.id, points: newTask.xp, date: timeBuildString(DateTime.now())));
+    }
+    
     await loadTasks();
     updateReps();
   }

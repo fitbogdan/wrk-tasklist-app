@@ -215,7 +215,7 @@ Future<Database> getPointsDatabase() async{
   
 }
 
-  void addXp(int points, String date, int id) async{
+  Future<void> addXp(int points, String date, int id) async{
     final db = await pointsDatabase;
     await db.insert(
       _pointsTableName, {
@@ -225,7 +225,7 @@ Future<Database> getPointsDatabase() async{
     });
   }
 
-  void deletePointEntry(int id) async{
+  Future<void> deletePointEntry(int id) async{
     final db = await pointsDatabase;
     await db.delete(
       _pointsTableName,
@@ -233,7 +233,7 @@ Future<Database> getPointsDatabase() async{
       whereArgs: [id],
     );
   }
-  void editPointEntry(PointsData obj) async{
+  Future<void> editPointEntry(PointsData obj) async{
     final db = await pointsDatabase;
 
     Map<String, dynamic> map = {};

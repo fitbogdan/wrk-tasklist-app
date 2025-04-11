@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   static TextStyle headingNonBold = TextStyle(fontSize: 25, color: Colors.white);
-  final DatabaseService _databaseService = DatabaseService.instance;
+  //final DatabaseService _databaseService = DatabaseService.instance;
   int currentView = 0;
 
   void saveTab() async{

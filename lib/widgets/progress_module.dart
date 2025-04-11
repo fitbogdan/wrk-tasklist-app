@@ -33,13 +33,29 @@ class _ProgressModuleState extends State<ProgressModule>{
   final DatabaseService _databaseService = DatabaseService.instance;
 
   List<PointsData> history = [];
+  late Map<String, dynamic> m = {};
+  List<Text> displayHistory = [];
+
+
+  @override
+  void initState() {
+    super.initState();
+    getDates();
+    //print(m);
+    
+  }
+
+
+
 
   //Gives dates from today, back in time for NR days.
   Future<void> getDates() async {
+    m.clear();
+    history.clear();
     List<PointsData> times = [];
     times = await _databaseService.getPointsHistory();
 
-    Map<String, dynamic> m = {};
+    
 
     for(int i = 0; i<times.length; i++){
       final date = times[i].date;
@@ -51,75 +67,117 @@ class _ProgressModuleState extends State<ProgressModule>{
       else{
         m[date] = points;
       }
-
     }
 
+    setState(() {
+      //print(m);
+      m = m;
+    });
+    //print(m);
     times.clear();
 
-    
     int j = 0;
     for(var i in m.entries){
       times.insert(j, PointsData(date: i.key, points: i.value, id: 0));
-
       j++; 
     }
     setState(() {
       history = times;
     });
   }
+
+  int totalReps(int days){
+
+    int len = history.length;
+    int sum = 0;
+
+    if(days < history.length){
+      for(int i = len-1; i>=len-days;i--){
+        sum += history[i].points;
+      }
+    }
+    else{
+      for(int i = len-1; i>=0;i--){
+        sum += history[i].points;
+      }
+    }
+     
+
+    return sum;
+  }
   
+  List<Text> showThisWeek() {
+    DateTime now = DateTime.now();
+    DateTime ago = now.subtract(Duration(days: 7));
+    List<Text> result = [];
+
+    for(int i = 0; i<=7; i++){
+      DateTime newAgo = ago.add(Duration(days: i));
+      String newAgoString = timeBuildString(newAgo);
+      String readableString = readableTime(newAgo);
+
+      if(m.containsKey(newAgoString)){
+        String str = "$readableString - ${m[newAgoString]} reps!";
+        result.insert(i, Text(str));
+        print(str);
+      }
+
+      else{
+        String str = "$readableString - 0 reps!";
+        result.insert(i, Text(str));
+        print(str);
+      }
+    }
+
+    return result;
+  }
+
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,        
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("DO NOT PRESS THIS BUTTON!"),
+            SizedBox(height: 20),
+            Text("This Week: ${totalReps(7)}"),
+            SizedBox(height: 20,),
             
-                
-              ],
-              ),
-              MaterialButton(
-                  color: Colors.red,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.dangerous,
-                        color: Colors.white,
+            Text("Weekly view:"),
+            
+            SizedBox(height: 10,),
+
+
+            //This Week
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  
+                  children: [
+                    Column(
+                      children: [
+                        
+                        for(int i = 0; i<displayHistory.length; i++)
+                          displayHistory[i],
+
+                        SizedBox(height: 20),
+                        MaterialButton(onPressed: () async {
+                          await getDates();
+                          displayHistory = showThisWeek();
+                        },
+                        child: Text("Press"),
                         ),
-                      Text(
-                        "Atomic Bomb",
-                        style: TextStyle(color: Colors.white),
-                        ),
-                    ],
-                  ),
-                  onPressed: () async {
-                    DateTime now = DateTime.now();
 
-                    print("Current date time: ${now.year}-${now.month}-${now.day}");
-
-                    for(int i = 1; i<=5; i++){
-                      Duration days = Duration(days: i);
-                      DateTime daysAgo = now.subtract(days);
-                      String dateText = timeBuildString(daysAgo);
-                      //_databaseService.addXp(5, dateText, i);
-
-                      print("Date and time $i days ago: $daysAgo");
-                    }
-
-
-                    getDates();
-                    print(history);
-                    //List<PointsData> times = getDates();
+                      
+                      ],
+                    )
                     
-
-                  }
-                ),
+                  ],
+                  ),
+              ],
+            )
           ],
         ),
       ),
