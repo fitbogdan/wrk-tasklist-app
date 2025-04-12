@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:wrk/services/database_service.dart';
 import 'package:wrk/services/time_service.dart';
@@ -35,6 +36,7 @@ class _ProgressModuleState extends State<ProgressModule>{
   List<PointsData> history = [];
   late Map<String, dynamic> m = {};
   List<Text> displayHistory = [];
+  List<String> weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri","Sat","Sun",];
 
 
   @override
@@ -135,52 +137,232 @@ class _ProgressModuleState extends State<ProgressModule>{
 
   @override
   Widget build(BuildContext context){
+    // ignore: unused_local_variable
+    double width = MediaQuery.sizeOf(context).width;
+    // ignore: unused_local_variable
+    double height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,        
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            SizedBox(height: 20),
-            Text("This Week: ${totalReps(7)}"),
-            SizedBox(height: 20,),
-            
-            Text("Weekly view:"),
-            
-            SizedBox(height: 10,),
 
-
-            //This Week
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  
+            Container(
+              //TODO: Make size variable
+              width: 418,
+              color: const Color.fromARGB(58, 90, 162, 255),
+              child: Column(
                   children: [
-                    Column(
-                      children: [
-                        
-                        for(int i = 0; i<displayHistory.length; i++)
-                          displayHistory[i],
-
-                        SizedBox(height: 20),
-                        MaterialButton(onPressed: () async {
-                          await getDates();
-                          displayHistory = showThisWeek();
-                        },
-                        child: Text("Press"),
-                        ),
-
-                      
-                      ],
-                    )
-                    
+                    Text("April 2024")
                   ],
+                ),
+            ),
+
+            Expanded(
+              child: Column(
+                children: [
+                  Container( 
+                    height: 50,
+                    decoration: BoxDecoration(
+                      //color: Colors.green,
+                      border: Border(
+                        // bottom: BorderSide(
+                        //   color: Colors.black,
+                        //   width: 0.5,
+                        // )
+                      )
+                    ),
+                    child: selectPeriodBar(),
                   ),
-              ],
+
+                  Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Colors.black,
+                          width: 0.5,
+                        ),
+                        // bottom: BorderSide(
+                        //   color: Colors.black,
+                        //   width: 0.5,
+                        // ),
+                        right: BorderSide(
+                          color: Colors.black,
+                          width: 0.3,
+                        ),
+                        left: BorderSide(
+                          color: Colors.black,
+                          width: 0.3
+                        )
+                        
+                      )
+                    ),
+                    child: GridView.count(
+                      crossAxisCount: 7,
+                      children: [
+                        for(int i = 0; i<7;i++)
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(58, 90, 162, 255),
+                              border: Border(
+                                right: BorderSide(
+                                  color: Colors.black,
+                                  width: 0.5,
+                                )
+                              )
+                            ),
+                            child: Text(
+                              weekDays[i],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                
+                              ),
+                              ),
+                          )
+                        
+                      ],
+
+                      ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 0.3,
+                        )
+                      ),
+                      child: GridView.count(
+                        childAspectRatio: 1.3,
+                        crossAxisCount: 7,
+                        children: [
+                      
+                          for(int i = 1; i<=30; i++)
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  right: BorderSide(
+                                    color: Colors.black,
+                                    width: 0.3,
+                                  ),
+                                  bottom: BorderSide(
+                                    color: Colors.black,
+                                    width: 0.3,
+                                  ),
+                                )
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "$i",
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      color: const Color.fromARGB(179, 0, 0, 0)
+                                    ),
+                                    ),
+                      
+                                    SizedBox(
+                                      height: 60,
+                                    ),
+                                    if(i == 1)
+                                      Center(
+                                        child: Text(
+                                          "Reps: 12",
+                                          style: TextStyle(
+                                          color: const Color.fromARGB(255, 90, 162, 255),
+                                          fontWeight: FontWeight.normal
+                                          ),
+                                          ),
+                                      )
+                                ],
+                              ),
+                              ),
+                        ],
+                        ),
+                    ),
+                  )
+                ],
+              ),
             )
-          ],
+        ],
         ),
       ),
     );
+  }
+
+  Row selectPeriodBar() {
+    return Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(10)
+                  ),
+                  child: Icon(Icons.arrow_left),
+                ),
+                //TODO: Make this not hardcoded bruh
+                Text("Today"),
+                
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(10)
+                  ),
+                  child: Icon(Icons.arrow_right),
+                ),
+              ],
+            );
+  }
+
+  Column testWeekProgress() {
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.start,        
+        children: [
+          SizedBox(height: 20),
+          Text("This Week: ${totalReps(7)}"),
+          SizedBox(height: 20,),
+          
+          Text("Weekly view:"),
+          
+          SizedBox(height: 10,),
+
+
+          //This Week
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                
+                children: [
+                  Column(
+                    children: [
+                      
+                      for(int i = 0; i<displayHistory.length; i++)
+                        displayHistory[i],
+
+                      SizedBox(height: 20),
+                      MaterialButton(onPressed: () async {
+                        await getDates();
+                        displayHistory = showThisWeek();
+                      },
+                      child: Text("Press"),
+                      ),
+
+                    
+                    ],
+                  )
+                  
+                ],
+                ),
+            ],
+          )
+        ],
+      );
   }
 }
