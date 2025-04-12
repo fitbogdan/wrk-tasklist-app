@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wrk/services/database_service.dart';
 import 'package:wrk/services/time_service.dart';
 
+
 class PointsData{
   int id;
   String date;
@@ -17,6 +18,27 @@ class PointsData{
   @override
   String toString(){
       return "PointsData{id: $id, points: $points, date: $date}";
+  }
+}
+
+class HistoryObject{
+  int year = 2025;
+  int month;
+  int day;
+  int weekday;
+  int points;
+
+  HistoryObject({
+    this.year = 2025,
+    required this.month,
+    required this.day,
+    required this.weekday,
+    required this.points,
+  });
+
+  @override
+  String toString(){
+    return "HistoryObject{month: $month, day: $day, weekday: $weekday, points: $points}";
   }
 }
 
@@ -44,6 +66,7 @@ class _ProgressModuleState extends State<ProgressModule>{
     super.initState();
     getDates();
     //print(m);
+    showThisMonthProgress(DateTime.now().month);
     
   }
 
@@ -130,8 +153,52 @@ class _ProgressModuleState extends State<ProgressModule>{
         print(str);
       }
     }
-
     return result;
+  }
+
+  Future<void> showThisMonthProgress(int month) async{
+    DateTime now = DateTime.now();
+    int cYear = now.year;
+    int cMonth = now.month;
+    List<HistoryObject> result = [];
+    await getDates();
+
+    //Calculating the number of days this month:
+    DateTime firstDay = DateTime(cYear, cMonth, 1);
+    int nextMonth = month == 12 ? 1 : month+1;
+    int count = DateTime(cYear, nextMonth, 1).subtract(Duration(days: 1)).day;
+
+    // print(count);
+    if(firstDay.weekday != 1){
+      while(firstDay.weekday > 1){
+        firstDay = firstDay.subtract(Duration(days: 1));
+        //Adjust ammount of shown days
+        count++;
+      }
+    }
+    
+    for(int i = 0; i<count; i++){
+      String timeString = timeBuildString(firstDay);
+      if(m.containsKey(timeString)){
+        result.insert(i, HistoryObject(month: firstDay.month, day: firstDay.day, weekday: firstDay.weekday, points: m[timeString])); 
+      }
+
+      else{
+        result.insert(i, HistoryObject(month: firstDay.month, day: firstDay.day, weekday: firstDay.weekday, points: 0));
+      }
+      firstDay = firstDay.add(Duration(days: 1));
+    }
+    List<Text> output = [];
+    for(int i = 0; i<count; i++){
+      output.insert(i, Text("day: ${result[i].day}, points: ${result[i].points}"));
+    }
+
+
+    print(result);
+    
+    setState(() {
+      displayHistory = output;
+    });
   }
 
 
@@ -235,12 +302,14 @@ class _ProgressModuleState extends State<ProgressModule>{
                           width: 0.3,
                         )
                       ),
-                      child: GridView.count(
+                      child: displayHistory.isEmpty ? 
+                      Center(child: CircularProgressIndicator())
+                      : GridView.count(
                         childAspectRatio: 1.3,
                         crossAxisCount: 7,
                         children: [
                       
-                          for(int i = 1; i<=30; i++)
+                          for(int i = 0; i<=30; i++)
                             Container(
                               decoration: BoxDecoration(
                                 border: Border(
@@ -257,27 +326,28 @@ class _ProgressModuleState extends State<ProgressModule>{
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Text(
-                                    "$i",
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(
-                                      color: const Color.fromARGB(179, 0, 0, 0)
-                                    ),
-                                    ),
+                                  // Text(
+                                  //   "$i",
+                                  //   textAlign: TextAlign.end,
+                                  //   style: TextStyle(
+                                  //     color: const Color.fromARGB(179, 0, 0, 0)
+                                  //   ),
+                                  //   ),
+                                  displayHistory[i],
                       
                                     SizedBox(
                                       height: 60,
                                     ),
-                                    if(i == 1)
-                                      Center(
-                                        child: Text(
-                                          "Reps: 12",
-                                          style: TextStyle(
-                                          color: const Color.fromARGB(255, 90, 162, 255),
-                                          fontWeight: FontWeight.normal
-                                          ),
-                                          ),
-                                      )
+                                    // if(i == 1)
+                                    //   Center(
+                                    //     child: Text(
+                                    //       "Reps: 12",
+                                    //       style: TextStyle(
+                                    //       color: const Color.fromARGB(255, 90, 162, 255),
+                                    //       fontWeight: FontWeight.normal
+                                    //       ),
+                                    //       ),
+                                    //   )
                                 ],
                               ),
                               ),
@@ -297,6 +367,22 @@ class _ProgressModuleState extends State<ProgressModule>{
   Row selectPeriodBar() {
     return Row(
               children: [
+
+                ElevatedButton.icon(
+                  onPressed: () {
+                    DateTime now = DateTime.now();
+                    int cYear = now.year;
+                    int cMonth = now.month;
+                    DateTime firstOfCMonth = DateTime(cYear, cMonth, 1);
+                    // print(weekDays[firstOfCMonth.weekday-1]);
+
+                    showThisMonthProgress(cMonth);
+                  },
+
+                  label: Icon(Icons.warning)
+                ),
+
+
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
