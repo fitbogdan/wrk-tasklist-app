@@ -21,6 +21,16 @@ class PointsData{
   }
 }
 
+class textInfo{
+  int day;
+  int points;
+
+  textInfo({
+    required this.day,
+    required this.points,
+  });
+}
+
 class HistoryObject{
   int year = 2025;
   int month;
@@ -57,14 +67,14 @@ class _ProgressModuleState extends State<ProgressModule>{
 
   List<PointsData> history = [];
   late Map<String, dynamic> m = {};
-  List<Text> displayHistory = [];
+  List<textInfo> displayHistory = [];
   List<String> weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri","Sat","Sun",];
 
 
   @override
   void initState() {
     super.initState();
-    getDates();
+    //getDates();
     //print(m);
     showThisMonthProgress(DateTime.now().month);
     
@@ -166,7 +176,15 @@ class _ProgressModuleState extends State<ProgressModule>{
     //Calculating the number of days this month:
     DateTime firstDay = DateTime(cYear, cMonth, 1);
     int nextMonth = month == 12 ? 1 : month+1;
-    int count = DateTime(cYear, nextMonth, 1).subtract(Duration(days: 1)).day;
+    int count = 0;
+    if(nextMonth != 1){
+      count = DateTime(cYear, nextMonth, 1).subtract(Duration(days: 1)).day;
+    }
+    else{
+      count = DateTime(cYear+1, 1, 1).subtract(Duration(days: 1)).day;
+    }
+      
+      
 
     // print(count);
     if(firstDay.weekday != 1){
@@ -188,9 +206,13 @@ class _ProgressModuleState extends State<ProgressModule>{
       }
       firstDay = firstDay.add(Duration(days: 1));
     }
-    List<Text> output = [];
+    List<textInfo> output = [];
     for(int i = 0; i<count; i++){
-      output.insert(i, Text("day: ${result[i].day}, points: ${result[i].points}"));
+      output.insert(i, textInfo(day: result[i].day, points: result[i].points));
+
+      //textInfo(days: result[i].day, points: result[i].points)
+
+      // Text("day: ${result[i].day}, points: ${result[i].points}")
     }
 
 
@@ -266,6 +288,7 @@ class _ProgressModuleState extends State<ProgressModule>{
                         
                       )
                     ),
+                    //Weekdays
                     child: GridView.count(
                       crossAxisCount: 7,
                       children: [
@@ -294,6 +317,7 @@ class _ProgressModuleState extends State<ProgressModule>{
 
                       ),
                   ),
+                  
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -308,49 +332,9 @@ class _ProgressModuleState extends State<ProgressModule>{
                         childAspectRatio: 1.3,
                         crossAxisCount: 7,
                         children: [
-                      
+                          
                           for(int i = 0; i<=30; i++)
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  right: BorderSide(
-                                    color: Colors.black,
-                                    width: 0.3,
-                                  ),
-                                  bottom: BorderSide(
-                                    color: Colors.black,
-                                    width: 0.3,
-                                  ),
-                                )
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  // Text(
-                                  //   "$i",
-                                  //   textAlign: TextAlign.end,
-                                  //   style: TextStyle(
-                                  //     color: const Color.fromARGB(179, 0, 0, 0)
-                                  //   ),
-                                  //   ),
-                                  displayHistory[i],
-                      
-                                    SizedBox(
-                                      height: 60,
-                                    ),
-                                    // if(i == 1)
-                                    //   Center(
-                                    //     child: Text(
-                                    //       "Reps: 12",
-                                    //       style: TextStyle(
-                                    //       color: const Color.fromARGB(255, 90, 162, 255),
-                                    //       fontWeight: FontWeight.normal
-                                    //       ),
-                                    //       ),
-                                    //   )
-                                ],
-                              ),
-                              ),
+                            dayItem(i),
                         ],
                         ),
                     ),
@@ -364,22 +348,103 @@ class _ProgressModuleState extends State<ProgressModule>{
     );
   }
 
+  Container dayItem(int i) {
+    return Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                right: BorderSide(
+                                  color: Colors.black,
+                                  width: 0.3,
+                                ),
+                                bottom: BorderSide(
+                                  color: Colors.black,
+                                  width: 0.3,
+                                ),
+                              )
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    // if(i == 0 || i % 7 == 0)
+                                    // ElevatedButton.icon(onPressed: (){}, label: Icon(Icons.info)),
+                                    Text(displayHistory[i].day.toString()),
+                                  ],
+                                ),
+                                
+                    
+                                  SizedBox(
+                                    height: 60,
+                                  ),
+
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    
+                                    Text(
+                                      displayHistory[i].points == 0 ? "❌ Points - ${displayHistory[i].points}" : "🏆Points - ${displayHistory[i].points}",
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                      ),
+                                  ],
+                                )
+                              ],
+                            ),
+                            );
+  }
+
   Row selectPeriodBar() {
     return Row(
               children: [
 
                 ElevatedButton.icon(
                   onPressed: () {
-                    DateTime now = DateTime.now();
-                    int cYear = now.year;
-                    int cMonth = now.month;
-                    DateTime firstOfCMonth = DateTime(cYear, cMonth, 1);
-                    // print(weekDays[firstOfCMonth.weekday-1]);
+                    List<int> w = [0,0,0,0,0];
+                    // int j = 7;
+                    for(int i = 0; i<7; i++){
+                      w[0] += displayHistory[i].points;
+                    }
+                    for(int i = 7; i<14; i++){
+                      w[1] += displayHistory[i].points;
+                    }
+                    for(int i = 14; i<21; i++){
+                      w[2] += displayHistory[i].points;
+                    }
+                    for(int i = 21; i<28; i++){
+                      w[3] += displayHistory[i].points;
+                    }
+                    
 
-                    showThisMonthProgress(cMonth);
+                    showDialog(context: context, builder: (context) 
+                    => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+                        title: Text("${readableTimeMonth(DateTime.now().month)}'s weeks:"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for(int i = 0; i<4;i++)
+                              Text(
+                                "Week ${i+1}: ${w[i]} reps",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w400
+                                ),
+                                ),
+                        
+                            
+                              Text("Total: ${w[0]+w[1]+w[2]+w[3]}")
+                              
+                          ],
+                        ),
+                    ));
                   },
 
-                  label: Icon(Icons.warning)
+                  label: Icon(Icons.insights)
                 ),
 
 
@@ -395,6 +460,9 @@ class _ProgressModuleState extends State<ProgressModule>{
                 Text("Today"),
                 
                 ElevatedButton(
+
+                  //TODO: Make this button calculate the ammount of days in this month/last month, and be able to change the for loop
+                  //Of the gridview.
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     shape: CircleBorder(),
@@ -430,12 +498,12 @@ class _ProgressModuleState extends State<ProgressModule>{
                     children: [
                       
                       for(int i = 0; i<displayHistory.length; i++)
-                        displayHistory[i],
+                        // displayHistory[i],
 
                       SizedBox(height: 20),
                       MaterialButton(onPressed: () async {
                         await getDates();
-                        displayHistory = showThisWeek();
+                        // displayHistory = showThisWeek();
                       },
                       child: Text("Press"),
                       ),

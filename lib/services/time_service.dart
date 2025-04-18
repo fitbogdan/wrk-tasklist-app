@@ -25,3 +25,30 @@ String readableTime (DateTime time){
   result = "${time.day}$sufix of $month";
   return result;
 } 
+
+String readableTimeMonth (int givenMonth){
+  String result = "";
+  List<String> months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  String month = months[givenMonth-1];
+
+  result = month.toString();
+  return result;
+} 
+
+int daysOfMonth (DateTime time){
+  
+  DateTime lastDay = time;
+  if(time.month < 12){
+    lastDay = DateTime(time.year, time.month+1, 1);
+  }
+    
+
+  else{
+    lastDay = DateTime(time.year+1, 1, 1);
+  }
+
+  lastDay = lastDay.subtract(Duration(days: 1));
+
+  return lastDay.day;
+}

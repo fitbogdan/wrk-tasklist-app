@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
           textTheme: TextTheme(
           headlineLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
           bodyMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          bodySmall: TextStyle(fontSize: 13, fontWeight: FontWeight.normal),
+          bodySmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: Colors.black,
