@@ -353,6 +353,8 @@ class _TaskModuleState extends State<TaskModuleMain>{
           });
   }
 
+  
+  //OLD --- NOT USED
   Container taskAddChatBox(double width, double height) {
     return Container(
             width: (width*0.23 < 500 ? 600 : width * 0.23+100),
