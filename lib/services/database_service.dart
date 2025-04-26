@@ -215,8 +215,15 @@ Future<Database> getPointsDatabase() async{
   
 }
 
-  Future<void> addXp(int points, String date, int id) async{
-    final db = await pointsDatabase;
+
+  Future<void> resetDatabase(String dbNameLocal) async{
+    var databasePathLocal = await getDatabasesPath();
+    String path = join(databasePathLocal, dbNameLocal);
+    await deleteDatabase(path);
+  }
+
+  Future<void> addXp(int points, String date, int id, {Transaction? txn}) async{
+    final db = txn ??  await pointsDatabase;
     await db.insert(
       _pointsTableName, {
       _pointsIdColumnName: id,
@@ -225,8 +232,8 @@ Future<Database> getPointsDatabase() async{
     });
   }
 
-  Future<void> deletePointEntry(int id) async{
-    final db = await pointsDatabase;
+  Future<void> deletePointEntry(int id, {Transaction? txn}) async{
+    final db = txn ?? await pointsDatabase;
     await db.delete(
       _pointsTableName,
       where: 'id = ?',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:wrk/task_module/taskitem.dart';
 import 'package:wrk/services/database_service.dart';
 import 'package:wrk/services/time_service.dart';
@@ -36,7 +37,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
   int? _xp;
   int xpTemp = -1;
   int repsTotal = 0;
-  bool delete = false;
+  bool keepXp = true;
 
   List<TaskData> tasks = [];
   List<TaskData> tasksDone = [];
@@ -48,10 +49,14 @@ class _TaskModuleState extends State<TaskModuleMain>{
   @override
   void initState() {
     super.initState();
+      initAsync();
+  }
 
-      loadTasks();
-      getLast();
-    
+  Future<void> initAsync() async{
+      await loadTasks();
+      await getLast();
+      // cleanUp();
+
   }
 
   Future<void> loadTasks() async{
@@ -61,20 +66,44 @@ class _TaskModuleState extends State<TaskModuleMain>{
       tasks = dbTasks;
     });
     }
-    
+    // tasks[2].timeString = timeBuildString(DateTime(1995,12,1));
+    // await DatabaseService.instance.updateTask(tasks[2]);
   }
+
+  void cleanUp(){
+    for(int i = 0; i<tasks.length; i++){
+      if(tasks[i].status == 1 && tasks[i].timeString != timeBuildString(DateTime.now())){
+        onDelete(tasks[i].id, tasks[i], i);
+      }
+    } 
+  }
+
 
   Future<void> addTask(content, int xp,  int orderIndex) async{
     DateTime time = DateTime.now();
-
     String timeString = timeBuildString(time);
 
-    _databaseService.addTask(content, xp, orderIndex, timeString);
+    TaskData newTask = TaskData(
+      id: -1,
+      content: content,
+      xp: xp,
+      status: 0,
+      orderIndex: orderIndex,
+      timeString: timeString,
+    );
+
+    tasks.insert(orderIndex, newTask);
+
+    
     //loadTasks();
       for(int i = orderIndex-1; i<tasks.length; i++){
         tasks[i].orderIndex++;
         _databaseService.updateTask(tasks[i]);
       }  
+
+    _databaseService.addTask(newTask.content, newTask.xp, newTask.orderIndex, newTask.timeString);
+
+
     loadTasks();
     
   }
@@ -108,14 +137,27 @@ class _TaskModuleState extends State<TaskModuleMain>{
   }
 
 
+  int getDoneTaskInsertIndex(){
+      int insertIndex = tasks.indexWhere((t) => t.status == 1);
+
+      if(insertIndex == -1){
+        insertIndex = tasks.length;
+      }
+
+      return insertIndex;
+  }
+
+
   Future<void> onToggle(TaskData task, int isChecked) async{
     if(isChecked == 0){
         tasksDoneCount--;
         repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
         //if(task.status == 1){
           TaskData aux = tasks.removeAt(task.orderIndex-1);
-          aux.orderIndex = tasks.length-tasksDoneCount+1;
-          tasks.insert(aux.orderIndex-1, aux);
+
+          int insertIndex = getDoneTaskInsertIndex();
+          aux.orderIndex = insertIndex+1;
+          tasks.insert(insertIndex, aux);
 
           refreshOrder(tasks);
         //}
@@ -128,24 +170,35 @@ class _TaskModuleState extends State<TaskModuleMain>{
           }
           repsTotal = repsTotal + task.xp;
           
-          TaskData aux = tasks.removeAt(task.orderIndex-1);
+          TaskData aux = tasks.removeAt((task.orderIndex == 0 ? 0 : task.orderIndex-1));
           aux.orderIndex = tasks.length;
           tasks.insert(tasks.length, aux);
           refreshOrder(tasks);
         }
         task.status = isChecked;
 
+      
+
       String time = timeBuildString(DateTime.now());
       
 
-      if(task.status == 0){
-        await _databaseService.deletePointEntry(task.id);
-      }
-      if(task.status == 1){
-        await _databaseService.addXp(task.xp, time, task.id);
-      }
-      //await _databaseService.editPointEntry(PointsData(id: task.id, date: time, points: (task.status == 0 ? 0 : task.xp)));  
-      await _databaseService.updateTask(task);
+      print(task);
+
+      // await _databaseService.resetDatabase('points_db.db');
+      
+
+
+
+      // if(task.status == 0){
+      //   await _databaseService.deletePointEntry(task.id);
+      // }
+
+      // //HERE IS WHERE IT BUGS
+      // if(task.status == 1){
+      //   await _databaseService.addXp(task.xp, time, task.id);;
+      // }
+      
+      // await _databaseService.updateTask(task);
       loadTasks();
       updateReps();
   }
@@ -156,14 +209,14 @@ class _TaskModuleState extends State<TaskModuleMain>{
       setState(() {
           if(task.status == 1){
             tasksDoneCount--;
-            if(delete == true){
+            if(keepXp == false){
                 repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
             }
           }
           tasks.removeAt(index);
           refreshOrder(tasks);
       });
-      if(task.status == 1){
+      if(task.status == 1 && keepXp == false){
         await _databaseService.deletePointEntry(task.id);
       }
       await _databaseService.deleteTask(task);
@@ -192,12 +245,27 @@ class _TaskModuleState extends State<TaskModuleMain>{
     updateReps();
   }
 
+  int getInsertIndex(){
+      int insertIndex = tasks.lastIndexWhere((t) => t.status == 0);
+
+      if(insertIndex == -1){
+        insertIndex = tasks.length;
+      }
+      else{
+        insertIndex++;
+      }
+
+      return insertIndex;
+  }
+
   //ONLY FOR DEV REASONS, REMOVE FOR PRODUCTION!!!
   Future<void> genTask() async{
     String name = WordPair.random().toString();
-    int xp = Random.secure().nextInt(20);
+    int xp = Random.secure().nextInt(12);
 
-    addTask(name, xp, (tasksDoneCount == 0 ? tasks.length+1 : tasks.length-tasksDoneCount+1));
+    
+
+    addTask(name, xp, getInsertIndex());
     loadTasks();
   }
 
@@ -314,21 +382,32 @@ class _TaskModuleState extends State<TaskModuleMain>{
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      "Always delete reps too",
-                      style: Theme.of(context).textTheme.bodySmall,
+                    SizedBox(width: 5),
+                    Transform.scale(
+                      scale: 0.8,
+                      child: Column(
+                        children: [
+                          Switch(
+                            value: keepXp, 
+                            onChanged:(value) {
+                            setState(() {
+                              keepXp = value;
+                            });
+                          },),
+                          Text(
+                            "Keep XP on delete",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            
+                        ],
                       ),
-                    Switch(
-                      value: delete, 
-                      onChanged:(value) {
-                      setState(() {
-                        delete = value;
-                      });
-                    },)
+                    ),
+                    
                   ],
                   ),
         
-                SizedBox(height: 20)
+                SizedBox(height: 10)
                 //taskAddChatBox(width, height),
         
               ],
@@ -346,7 +425,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
           backgroundColor: Colors.yellow,
           child: Icon(Icons.bolt),
           onPressed: () async {
-            addTask("", 0, tasks.length-tasksDoneCount+1);
+            addTask("", 0, getInsertIndex());
             //_databaseService.addTask("", 0, tasks.length-tasksDoneCount);
             loadTasks();
             playPopSound();
@@ -714,20 +793,38 @@ class _TaskModuleState extends State<TaskModuleMain>{
   FloatingActionButton printButton() {
     return FloatingActionButton(
                   // ignore: avoid_print
-                  onPressed:() {
-                    //ignore: avoid_print
+                  onPressed:() async {
+
                     print("$tasks \n\n");
 
+                    //ignore: avoid_print
+                    /*
+                    print("\n $tasksDoneCount");
+                    //print("\nTASKS: $tasks");
+                    //print("\nTASKS DONE: $tasksDone");
+                    //ignore: avoid_print
+                    */
 
                     for(int i=0; i < tasks.length; i++){
                       print("${tasks[i].content} ${tasks[i].orderIndex}");
                     }
 
-                    print("\n $tasksDoneCount");
-                    //print("\nTASKS: $tasks");
-                    //print("\nTASKS DONE: $tasksDone");
-                    //ignore: avoid_print
+                    /*final random = Random();
+                    DateTime start = DateTime(2025, 3, 1);
+
+
                     
+
+                    for(int i = 0; i < 76; i++){
+                        int randomInt = random.nextInt(11);
+                        bool randomBool = random.nextBool();
+                        start = start.add(Duration(days: 1));
+
+                        if(randomBool == true){
+                          await _databaseService.addXp(randomInt, timeBuildString(start), tasks.length+1);
+                        }
+                    }*/
+
                   },
                   child: Icon(Icons.keyboard),
                 );
@@ -817,7 +914,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
                             xpTemp = -1;
                           });
 
-                          addTask(_task!, _xp!, tasks.length-tasksDoneCount+1);
+                          addTask(_task!, _xp!, getInsertIndex());
                           setState(() {
                             _task = null;
                             Navigator.pop(context);

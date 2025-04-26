@@ -1,8 +1,8 @@
-import 'package:flutter/gestures.dart';
+// import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:wrk/services/database_service.dart';
 import 'package:wrk/services/time_service.dart';
-
+// import 'dart:math';
 
 class PointsData{
   int id;
@@ -565,6 +565,8 @@ class _ProgressModuleState extends State<ProgressModule>{
                   ),
                   child: Icon(Icons.arrow_right),
                 ),
+
+                
               ],
             );
   }
