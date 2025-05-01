@@ -85,9 +85,14 @@ class TaskItem extends StatelessWidget {
   }
 
   Container taskBox(double width, double height, BuildContext context, String newName, int newXp) {
+
+    TextStyle taskInfoDialog = TextStyle( fontSize: 17, fontWeight: FontWeight.w400);
+
     return Container(
   width: (width*0.23 < 500 ? 500 : width * 0.23), //OLD: 576
   height: (height*0.06 < 76 ? 76 : height*0.06), //OLD: 76
+
+  
   
   margin: EdgeInsets.all(10),
   //padding: EdgeInsets.all(20),
@@ -186,8 +191,104 @@ class TaskItem extends StatelessWidget {
               Flexible(
                 flex: 1,
                 child: IconButton(onPressed: () {
-                    onDelete(id);
-                    playPopSound();
+
+                    showDialog(
+                      context: context, 
+                      builder: (_) 
+                      => AlertDialog(
+                        title: Text(
+                          "Delete task",
+                          style: TextStyle(
+                            fontSize: 15
+                          ),
+                          ),
+                        shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+                        content: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.delete,
+                                  size: 30,
+                                  ),
+                                Text(
+                                "Are you sure you want to delete this task?",
+                                textAlign: TextAlign.start,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 30),
+
+                            
+                            Text(
+                              "Name: $name",
+                              textAlign: TextAlign.start,
+                              style: taskInfoDialog,
+                            ),
+                            Text(
+                              "Xp: $xp",
+                              textAlign: TextAlign.start,
+                              style: taskInfoDialog,
+                            ),
+                            Text(
+                              "Created on: $timeString",
+                              textAlign: TextAlign.start,
+                              style: taskInfoDialog,
+                            ),
+                            
+
+
+                            SizedBox(height: 30),
+
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                
+                                MaterialButton( //--Yes button
+                                  onPressed: () {
+                                      onDelete(id);
+                                      playPopSound();
+                                      Navigator.pop(context);
+                                  },
+                                  elevation: 10,
+                                  
+                                  color: const Color.fromARGB(255, 59, 180, 236),
+                                  child: Text(
+                                    "Yes",
+                                    style: TextStyle(color: Colors.white)
+                                    ),
+                                ),
+
+                                SizedBox(width: 10),
+
+                                MaterialButton( //--No button
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  elevation: 10,
+                                  color: const Color.fromARGB(255, 59, 180, 236),
+                                  child: Text(
+                                    "No",
+                                    style: TextStyle(color: Colors.white),
+                                    ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    );
+
+                    
                 }, 
                 icon: Icon(
                   Icons.delete,
@@ -204,93 +305,10 @@ class TaskItem extends StatelessWidget {
                     )
           ],
           ),
-          
-            
-          
-          
-          
-          
-          
-
         ],
       ),
     ),
   );
-  }
-
-  Set<void> get keepOrDeleteDialog {
-    return {
-            /*showDialog(context: context, builder: (_) => AlertDialog(
-              title: Text("Do you want to keep the reps?"),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  ),
-              backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  /*
-
-                  //TODO: Add remember my choice setting
-                  Row(
-                    children: [
-                      Checkbox(
-                      value: rememberSave, 
-                      onChanged: (value) {
-                        rememberSave = value!;
-                      }
-                      
-                      )
-                    ],
-                  ),
-                  */
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          onDelete(id);
-                          playPopSound();
-                          Navigator.pop(context);
-                        }, 
-
-                        style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
-                          ),
-
-                        child: Text(
-                          "No",
-                          style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-
-
-                        SizedBox(width: 10),
-
-                        ElevatedButton(
-                          onPressed: () {
-                            //TODO: Make this add to the rembered ammount of reps done
-                            }, 
-
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
-                          ),
-                          
-                          child: Text(
-                            "Yes",
-                            style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                    ],
-                  ),
-                  
-                  
-                ],
-              ),
-            )),*/
-                  
-                  
-              };
   }
 
   Future<dynamic> editTaskDialog(BuildContext context, String newName, int newXp) {

@@ -32,8 +32,12 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: Colors.white,
           textTheme: TextTheme(
           headlineLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-          bodyMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          bodySmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          bodyMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          bodySmall: TextStyle(
+            fontSize: 16,
+            
+            fontWeight: FontWeight.w400
+            ),
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: Colors.black,

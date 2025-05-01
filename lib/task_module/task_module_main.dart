@@ -96,7 +96,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
 
     
     //loadTasks();
-      for(int i = orderIndex-1; i<tasks.length; i++){
+      for(int i = orderIndex; i<tasks.length; i++){
         tasks[i].orderIndex++;
         _databaseService.updateTask(tasks[i]);
       }  
@@ -127,13 +127,15 @@ class _TaskModuleState extends State<TaskModuleMain>{
     //Get prefs!
     int? repsTotalTemp = user.prefs.getInt('repsTotal');
     int? tasksDoneCountTemp = user.prefs.getInt('tasksDoneCount');
+
+    if(mounted){
     setState(() {
       toBeat = user.prefs.getInt('to_beat');  
       toBeatCopy = toBeat ?? 0;
       repsTotal = repsTotalTemp ?? 0;
       tasksDoneCount = tasksDoneCountTemp ?? 0;
     });
-    
+    }
   }
 
 
@@ -189,16 +191,16 @@ class _TaskModuleState extends State<TaskModuleMain>{
 
 
 
-      // if(task.status == 0){
-      //   await _databaseService.deletePointEntry(task.id);
-      // }
+      if(task.status == 0){
+        await _databaseService.deletePointEntry(task.id);
+      }
 
-      // //HERE IS WHERE IT BUGS
-      // if(task.status == 1){
-      //   await _databaseService.addXp(task.xp, time, task.id);;
-      // }
+      //HERE IS WHERE IT BUGS
+      if(task.status == 1){
+        await _databaseService.addXp(task.xp, time, task.id);;
+      }
       
-      // await _databaseService.updateTask(task);
+      await _databaseService.updateTask(task);
       loadTasks();
       updateReps();
   }
@@ -261,7 +263,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
   //ONLY FOR DEV REASONS, REMOVE FOR PRODUCTION!!!
   Future<void> genTask() async{
     String name = WordPair.random().toString();
-    int xp = Random.secure().nextInt(12);
+    int xp = Random.secure().nextInt(8);
 
     
 

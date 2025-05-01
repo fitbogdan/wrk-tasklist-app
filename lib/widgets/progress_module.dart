@@ -247,6 +247,7 @@ class _ProgressModuleState extends State<ProgressModule>{
     double width = MediaQuery.sizeOf(context).width;
     // ignore: unused_local_variable
     double height = MediaQuery.sizeOf(context).height;
+    print(height);
     return Scaffold(
       body: Center(
         child: Row(
@@ -256,29 +257,34 @@ class _ProgressModuleState extends State<ProgressModule>{
 
             Container(
               //TODO: Make size variable
-              width: 418,
+              width: width * (418/2560),
               color: const Color.fromARGB(58, 90, 162, 255),
-              child: Column(
-                  children: [
-                    Text("${readableTimeMonth(month)} ${DateTime.now().year}"),
-
-                    SizedBox(height: 20,),
-
-                    miniCalendar(),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Total days worked this month: ${totalPresentDays(month)}"),
-                        Text("Attendance rate: ${((totalPresentDays(month)/daysOfMonth(DateTime(DateTime.now().year, month, 1)))*100).toStringAsFixed(2)}%"),
-                        Text("Total Reps: ${totalRepsThisMonth(month)}"),
-                        // if(totalRepsThisMonth(month) - totalRepsThisMonth((month == 1 ? 12 : month-1)) > 0)
-                          // Text("Progress over last month: ${totalRepsThisMonth(month) - totalRepsThisMonth((month == 1 ? 12 : month-1))}")
-                      ],
-                    ),
-                    
-                  ],
-                ),
+              child: ListView(
+                children: [Column(
+                    children: [
+                      Text("${readableTimeMonth(month)} ${DateTime.now().year}"),
+                
+                      SizedBox(height: 20,),
+                
+                      miniCalendar(
+                        height * (350/1009) > 350 ? width * (350/2560) : height * (350/1009), //If it's a bigger display, we make it squared.
+                        width * (350/2560)
+                      ),
+                
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Total days worked this month: ${totalPresentDays(month)}"),
+                          Text("Attendance rate: ${((totalPresentDays(month)/daysOfMonth(DateTime(DateTime.now().year, month, 1)))*100).toStringAsFixed(2)}%"),
+                          Text("Total Reps: ${totalRepsThisMonth(month)}"),
+                          // if(totalRepsThisMonth(month) - totalRepsThisMonth((month == 1 ? 12 : month-1)) > 0)
+                            // Text("Progress over last month: ${totalRepsThisMonth(month) - totalRepsThisMonth((month == 1 ? 12 : month-1))}")
+                        ],
+                      ),
+                      
+                    ],
+                  ),]
+              ),
             ),
 
             Expanded(
@@ -365,15 +371,40 @@ class _ProgressModuleState extends State<ProgressModule>{
                         childAspectRatio: 1.3,
                         crossAxisCount: 7,
                         children: [
-                          
-                          for(int i = 0; i<displayHistory.length; i++)
-                            ColorFiltered(
+
+                          ...List.generate(displayHistory.length, (i) {
+
+
+                            bool isThisMonth = true;
+                            
+                            if(i < 7){
+                              for(int j = i+1; j<7; j++){//Always the first day of the month will be in the first week
+                                if(displayHistory[j].day == 1){ //Looking to see if we are ahead of the first day or not
+                                  isThisMonth = false; //If not, we set this to false
+                                }
+                              }
+                            }
+                            
+
+                            return ColorFiltered(
                               colorFilter: ColorFilter.mode(
-                                  Colors.transparent,//(displayHistory[i].points == 0 ? const Color.fromARGB(183, 158, 158, 158) : Colors.transparent), 
-                                  BlendMode.srcATop
-                                ),
-                              child: dayItem(i)
+                                // isThisMonth == true ? Colors.transparent : Colors.grey,
+                                Colors.transparent,
+                                BlendMode.srcATop,
                               ),
+                              child: dayItem(i, isThisMonth),
+                            );
+                          })
+
+                          
+                          // for(int i = 0; i<displayHistory.length; i++)
+                          //   ColorFiltered(
+                          //     colorFilter: ColorFilter.mode(
+                          //         Colors.transparent,//(displayHistory[i].points == 0 ? const Color.fromARGB(183, 158, 158, 158) : Colors.transparent), 
+                          //         BlendMode.srcATop
+                          //       ),
+                          //     child: dayItem(i)
+                          //     ),
                         ],
                         ),
                     ),
@@ -387,10 +418,10 @@ class _ProgressModuleState extends State<ProgressModule>{
     );
   }
 
-  Container miniCalendar() {
+  Container miniCalendar(double height, double width) {
     return Container(
-                    height: 350,
-                    width: 350,
+                    height: height,
+                    width: width,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.white,
@@ -422,11 +453,6 @@ class _ProgressModuleState extends State<ProgressModule>{
                             
                         }
 
-
-                          
-                              
-
-                        
                         return Opacity(
                           opacity: isGrey ? 0.7 : 1,
                           child: Center(
@@ -458,66 +484,56 @@ class _ProgressModuleState extends State<ProgressModule>{
                   );
   }
 
-  Container dayItem(int i) {
+  Container dayItem(int i, bool isThisMonth) {
     return Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                right: BorderSide(
-                                  color: Colors.black,
-                                  width: 0.3,
-                                ),
-                                bottom: BorderSide(
-                                  color: Colors.black,
-                                  width: 0.6,
-                                ),
-                              )
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    // if(i == 0 || i % 7 == 0)
-                                    // ElevatedButton.icon(onPressed: (){}, label: Icon(Icons.info)),
-
-
-
-
-                                      Opacity(
-                                        opacity: (displayHistory[i].points == 0 ? 0.7 : 1),
-                                        child: Text(displayHistory[i].day.toString())
-                                        ),
-                                  ],
-                                ),
-                                
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                    color: Colors.black,
+                    width: 0.3,
+                  ),
+                  bottom: BorderSide(
+                    color: Colors.black,
+                    width: 0.6,
+                  ),
+                )
+              ),
+              child: ColorFiltered(
+                colorFilter: ColorFilter.mode(
+                  isThisMonth == true ? Colors.transparent : const Color.fromARGB(255, 158, 158, 158),
+                  BlendMode.srcATop,
+                ),
+                child: Stack(
+                  // crossAxisAlignment: CrossAxisAlignment.end,
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Opacity(
+                              opacity: (displayHistory[i].points == 0 ? 0.7 : 1),
+                              child: Text(displayHistory[i].day.toString())
+                              ),
+                      ),
                     
-                                  SizedBox(
-                                    height: 60,
-                                  ),
-
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    
-                                    if(displayHistory[i].points == 0)
-                                    Opacity(
-                                      opacity: 0.7,
-                                      child: Text(
-                                        "❌ Points - ${displayHistory[i].points}",
-                                        style: Theme.of(context).textTheme.bodySmall,
-                                        ),
-                                    ),
-                                    if(displayHistory[i].points != 0)
-                                      Text(
-                                        "🏆Points - ${displayHistory[i].points}",
-                                        style: Theme.of(context).textTheme.bodySmall,
-                                      )
-                                  ],
-                                )
-                              ],
-                            ),
-                            );
+                
+                      // SizedBox(
+                      //   height: 60,
+                      // ),
+                    // const Spacer(),
+                
+                    Center(
+                      child: Text(
+                        displayHistory[i].points == 0 
+                        ? "❌ Points - ${displayHistory[i].points}"
+                        : "🏆Points - ${displayHistory[i].points}",
+                        style: Theme.of(context).textTheme.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    )
+                  ],
+                ),
+              ),
+              );
   }
 
   Row selectPeriodBar() {
@@ -547,9 +563,6 @@ class _ProgressModuleState extends State<ProgressModule>{
                 Text(readableTimeMonth(month)),
                 
                 ElevatedButton(
-
-                  //TODO: Make this button calculate the ammount of days in this month/last month, and be able to change the for loop
-                  //Of the gridview.
                   onPressed: ()  async {
 
                     setState(() {
