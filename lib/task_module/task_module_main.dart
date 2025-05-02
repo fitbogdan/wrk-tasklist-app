@@ -7,7 +7,7 @@ import 'package:wrk/services/sound_service.dart';
 import 'package:english_words/english_words.dart';
 import 'dart:math';
 
-import 'package:wrk/widgets/progress_module.dart';
+import 'package:wrk/progress_module/progress_module.dart';
 
 
 class TaskModuleMain extends StatefulWidget{

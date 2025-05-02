@@ -1,4 +1,6 @@
 // import 'package:flutter/gestures.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:wrk/services/database_service.dart';
 import 'package:wrk/services/time_service.dart';
@@ -247,7 +249,10 @@ class _ProgressModuleState extends State<ProgressModule>{
     double width = MediaQuery.sizeOf(context).width;
     // ignore: unused_local_variable
     double height = MediaQuery.sizeOf(context).height;
-    print(height);
+
+
+    double miniCalendarSizeFactor = max(width, height);
+    // print(height);
     return Scaffold(
       body: Center(
         child: Row(
@@ -260,26 +265,33 @@ class _ProgressModuleState extends State<ProgressModule>{
               width: width * (418/2560),
               color: const Color.fromARGB(58, 90, 162, 255),
               child: ListView(
-                children: [Column(
+                children: [
+                  Column(
                     children: [
                       Text("${readableTimeMonth(month)} ${DateTime.now().year}"),
                 
                       SizedBox(height: 20,),
                 
                       miniCalendar(
-                        height * (350/1009) > 350 ? width * (350/2560) : height * (350/1009), //If it's a bigger display, we make it squared.
-                        width * (350/2560)
+                        miniCalendarSizeFactor * (350/2560),
+                        miniCalendarSizeFactor * (350/2560),
+                        // height * (350/1009) > 350 ? width * (350/2560) : height * (350/1009), //If it's a bigger display, we make it squared.
+                        // width * (350/2560)
                       ),
                 
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                      Container(
+                        width: miniCalendarSizeFactor * (350/2560),
+                        alignment: Alignment.centerLeft,
+                        child: Column( 
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                           Text("Total days worked this month: ${totalPresentDays(month)}"),
                           Text("Attendance rate: ${((totalPresentDays(month)/daysOfMonth(DateTime(DateTime.now().year, month, 1)))*100).toStringAsFixed(2)}%"),
                           Text("Total Reps: ${totalRepsThisMonth(month)}"),
                           // if(totalRepsThisMonth(month) - totalRepsThisMonth((month == 1 ? 12 : month-1)) > 0)
                             // Text("Progress over last month: ${totalRepsThisMonth(month) - totalRepsThisMonth((month == 1 ? 12 : month-1))}")
                         ],
+                        )
                       ),
                       
                     ],
@@ -470,8 +482,8 @@ class _ProgressModuleState extends State<ProgressModule>{
                                   "${displayHistory[i].day}",
                                   style: TextStyle(
                                     color: (isActive ? Colors.white : Colors.black),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.normal
+                                    fontSize: height/19,
+                                    fontWeight: FontWeight.w400
                                   ),
                                   )
                                   
@@ -559,7 +571,7 @@ class _ProgressModuleState extends State<ProgressModule>{
                   ),
                   child: Icon(Icons.arrow_left),
                 ),
-                //TODO: Make this not hardcoded bruh
+                
                 Text(readableTimeMonth(month)),
                 
                 ElevatedButton(
@@ -596,7 +608,7 @@ class _ProgressModuleState extends State<ProgressModule>{
                     }
 
                     if(ok == true){
-                      w[0] += displayHistory[i].points;
+                      w[0] += displayHistory[i].points;//Only adding reps once the month actually starts
                     }
                   }
                   for(int i = 7; i<14; i++){

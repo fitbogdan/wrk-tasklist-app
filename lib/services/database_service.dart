@@ -3,7 +3,7 @@ import '../task_module/taskitem.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wrk/widgets/progress_module.dart';
+import 'package:wrk/progress_module/progress_module.dart';
 //import 'package:wrk/main.dart';
 //import 'package:sqflite_common_ffi';
 

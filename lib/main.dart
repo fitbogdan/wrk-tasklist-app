@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
-import 'package:wrk/widgets/progress_module.dart';
+import 'package:wrk/progress_module/progress_module.dart';
 import 'task_module/task_module_main.dart';
 import 'package:wrk/services/database_service.dart';
 
