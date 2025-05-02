@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:wrk/progress_module/progress_module.dart';
 import 'task_module/task_module_main.dart';
 import 'package:wrk/services/database_service.dart';
-
+import 'package:wrk/settings_tab/settings.dart';
 
 
 void main() {
@@ -90,12 +90,22 @@ class _MyHomePageState extends State<MyHomePage> {
     getPrefs();
   }
 
+  Future<void> streakCalculator () async{
+    
+  }
+
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final List<Widget> viewList = [
     TaskModuleMain(),
     ProgressModule(),
-    //TODO: Make settings tab and put keep xp on delete and other settings in there.
+    SettingsTab(),
+  ];
+
+  final List<String> titleList = [
+    "WRK_",
+    "Progresion",
+    "Settings"
   ];
   
 
@@ -107,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
       key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 59, 180, 236),//Theme.of(context).scaffoldBackgroundColor,
-        title: Text("WRK", style: headingNonBold),
+        title: Text(titleList[currentView], style: headingNonBold),
         iconTheme: IconThemeData(
           color: Colors.white,
           size: 30
@@ -140,6 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 )
               ),
+
+
               ListTile(
                 leading: Icon(Icons.home),
                 title: Text("Tasks"),
@@ -160,8 +172,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     saveTab();
                   });
                 },
-              )
+              ),
 
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text("Settings"),
+                onTap: () {
+                  setState(() {
+                    currentView = 2;
+                    saveTab();
+                  });
+                },
+              )
               
               
           ],

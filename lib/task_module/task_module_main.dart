@@ -127,6 +127,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
     //Get prefs!
     int? repsTotalTemp = user.prefs.getInt('repsTotal');
     int? tasksDoneCountTemp = user.prefs.getInt('tasksDoneCount');
+    bool? keepTmp = user.prefs.getBool('keepXp');
 
     if(mounted){
     setState(() {
@@ -134,6 +135,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
       toBeatCopy = toBeat ?? 0;
       repsTotal = repsTotalTemp ?? 0;
       tasksDoneCount = tasksDoneCountTemp ?? 0;
+      keepXp = keepTmp ?? false;
     });
     }
   }
@@ -184,7 +186,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
       String time = timeBuildString(DateTime.now());
       
 
-      print(task);
+      // print(task);
 
       // await _databaseService.resetDatabase('points_db.db');
       
@@ -310,114 +312,94 @@ class _TaskModuleState extends State<TaskModuleMain>{
 //----------------------------Dev end----------------------------------------------
 ],
   ),
-      body: Center(
-        child: Column(
-              children: [
-                SizedBox(height: 10),
-                //width: (width*0.23 < 500 ? 500 : width * 0.23),
-        
-                taskStats(context, width),
-        
-                SizedBox(height: 30),
-                Flexible(
-                  flex: 3,
-                  child: SizedBox(
-                    width: (width*0.23 < 500 ? 500+25 : width * 0.23+25),
-                    child: ReorderableListView.builder(
-                      proxyDecorator: selectDecorator,
-                      buildDefaultDragHandles: false,
-                      itemCount: tasks.length, 
-                      itemBuilder:(context, index) {
-                        var task = tasks[index];
-                        return Row(
-                          key: ValueKey(task.id),
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TaskItem(
-                              orderIndex: index,
-                              id: task.id,
-                              name: task.content, 
-                              xp: task.xp, 
-                              isChecked: task.status,
-                              timeString: task.timeString,
-                              onToggle:(isChecked) {
-                                onToggle(task, isChecked);
-                              },
-                              onDelete:(id) {
-                                onDelete(id, task, index);
-                              },
-                              onEdit: (newTask) async {
-                                onEdit(newTask, task, index);
-                              }
-                          ),
-                        ],);
-                      }, 
-                    
-                      onReorder:(oldIndex, newIndex) async {
-                        if(oldIndex < newIndex){
-                            newIndex--;
-                          }                
-                          final TaskData item = tasks[oldIndex];
-                          tasks.removeAt(oldIndex);
-                          tasks.insert(newIndex, item);                      
-                          for(int i = 0; i < tasks.length; i++){
-                            tasks[i].orderIndex = i+1;
-                            _databaseService.updateTask(tasks[i]);
-                          }
-        
-                        setState(() {
-                        });
-                      },
-                      ),
-                  )
-                ),
-        
-        
-                /*Flexible(
-                  flex: 1,
-                  child: Text("Archive")
-                  ),*/
-        
-                //SizedBox(height: 50),
-        
-        
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+      body: Stack(
+        children: [
+
+
+          // Positioned.fill(
+          //   child: IgnorePointer(
+          //     child: Text(
+          //       "FOCUS",
+          //       style: TextStyle(
+          //         fontSize: width * (100/2560),
+          //         color: Colors.black.withValues(alpha: 0.1),
+          //         fontWeight: FontWeight.bold,
+          //         letterSpacing: width * (10/2560),
+          //       ),
+          //       textAlign: TextAlign.start,
+          //     ),
+          //   )
+          // ),
+
+          Center(
+            child: Column(
                   children: [
-                    SizedBox(width: 5),
-                    Transform.scale(
-                      scale: 0.8,
-                      child: Column(
-                        children: [
-                          Switch(
-                            value: keepXp, 
-                            onChanged:(value) {
+                    SizedBox(height: 10),
+                    //width: (width*0.23 < 500 ? 500 : width * 0.23),
+            
+                    taskStats(context, width),
+            
+                    SizedBox(height: 30),
+                    Flexible(
+                      flex: 3,
+                      child: SizedBox(
+                        width: (width*0.23 < 500 ? 500+25 : width * 0.23+25),
+                        child: ReorderableListView.builder(
+                          proxyDecorator: selectDecorator,
+                          buildDefaultDragHandles: false,
+                          itemCount: tasks.length, 
+                          itemBuilder:(context, index) {
+                            var task = tasks[index];
+                            return Row(
+                              key: ValueKey(task.id),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TaskItem(
+                                  orderIndex: index,
+                                  id: task.id,
+                                  name: task.content, 
+                                  xp: task.xp, 
+                                  isChecked: task.status,
+                                  timeString: task.timeString,
+                                  onToggle:(isChecked) {
+                                    onToggle(task, isChecked);
+                                  },
+                                  onDelete:(id) {
+                                    onDelete(id, task, index);
+                                  },
+                                  onEdit: (newTask) async {
+                                    onEdit(newTask, task, index);
+                                  }
+                              ),
+                            ],);
+                          }, 
+                        
+                          onReorder:(oldIndex, newIndex) async {
+                            if(oldIndex < newIndex){
+                                newIndex--;
+                              }                
+                              final TaskData item = tasks[oldIndex];
+                              tasks.removeAt(oldIndex);
+                              tasks.insert(newIndex, item);                      
+                              for(int i = 0; i < tasks.length; i++){
+                                tasks[i].orderIndex = i+1;
+                                _databaseService.updateTask(tasks[i]);
+                              }
+            
                             setState(() {
-                              keepXp = value;
                             });
-                          },),
-                          Text(
-                            "Keep XP on delete",
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            
-                        ],
-                      ),
+                          },
+                          ),
+                      )
                     ),
-                    
                   ],
+            
+                  
+                  
+                  
                   ),
-        
-                SizedBox(height: 10)
-                //taskAddChatBox(width, height),
-        
-              ],
-        
-              
-              
-              
-              ),
+          ),
+        ],
       ),
     );
   }

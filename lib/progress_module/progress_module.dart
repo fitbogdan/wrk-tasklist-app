@@ -534,12 +534,51 @@ class _ProgressModuleState extends State<ProgressModule>{
                     // const Spacer(),
                 
                     Center(
-                      child: Text(
-                        displayHistory[i].points == 0 
-                        ? "❌ Points - ${displayHistory[i].points}"
-                        : "🏆Points - ${displayHistory[i].points}",
-                        style: Theme.of(context).textTheme.bodySmall,
-                        overflow: TextOverflow.ellipsis,
+                      child: Container(
+                        width: 150,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: displayHistory[i].points != 0 && isThisMonth == true
+                            ? const Color.fromARGB(255, 0, 255, 8).withValues(alpha: 0.2)
+                            : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                            color: displayHistory[i].points != 0 && isThisMonth == true
+                            ? const Color.fromARGB(255, 0, 255, 8).withValues(alpha: 0.7)
+                            : Colors.transparent,
+                            spreadRadius: 5,
+                            blurRadius: 20,
+                            offset: Offset(0, 0),
+                          )],
+                        ),
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+
+
+                            if(displayHistory[i].points==0)
+                              Text(
+                                "❌ Points - ${displayHistory[i].points}",                              
+                                style: Theme.of(context).textTheme.bodySmall,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+
+                            if(displayHistory[i].points!=0)
+                              Row(
+                                children: [
+                                  Text(
+                                    "✅ Points - ${displayHistory[i].points}",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500
+                                      ),
+                                    ),
+                                ],
+                              )
+                          ],
+                        ),
                       )
                     )
                   ],
@@ -559,7 +598,13 @@ class _ProgressModuleState extends State<ProgressModule>{
                   onPressed: () async {
 
                     setState(() {
-                      month = month-1;
+                      if(month != 1){
+                        month = month-1;
+                      }
+                      else{
+                        month = 12;
+                      }
+                      
                       displayHistory.clear();
                     });
                     await showThisMonthProgress(month);
@@ -578,7 +623,13 @@ class _ProgressModuleState extends State<ProgressModule>{
                   onPressed: ()  async {
 
                     setState(() {
-                      month = month+1;
+                      if(month < 12){
+                        month = month+1;
+                      }
+                      else{
+                        month = 1;
+                      }
+
                       displayHistory.clear();
                     });
                     await showThisMonthProgress(month);

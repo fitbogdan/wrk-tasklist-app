@@ -26,6 +26,7 @@ class DatabaseService{
   static Database? _pointsDb;
   static final DatabaseService instance = DatabaseService._constructor();
 
+  //TASK DB NAMES:
   final String _tasksTableName = "tasks";
   final String _tasksIdColumnName = "id";
   final String _tasksContentColumnName = "content";
@@ -39,6 +40,11 @@ class DatabaseService{
   final String _pointsIdColumnName = "id";
   final String _pointsDateColumnName = "date";
   final String _pointsXpColumnName = "xp";
+
+  //STREAK DB NAMES:
+  final String _streakTableName = "streak_table";
+  final String _streakIdColumnName = "id";
+  final String _streakDateColumnName = "date";
   
 
   DatabaseService._constructor();
@@ -71,7 +77,7 @@ class DatabaseService{
     final databaseDirPath = await getDatabasesPath();
     final databasePath = join(databaseDirPath, "master_db.db");
 
-    print(databasePath);
+    // print(databasePath);
 
 
     try {
@@ -184,7 +190,7 @@ Future<Database> getPointsDatabase() async{
     final pointsDatabase = await databaseFactory.openDatabase(
       pointsDatabasePath,
       options: OpenDatabaseOptions(
-        version: 1,
+        version: 2,
         onCreate:(db, version) {
           try{
             db.execute('''
@@ -194,11 +200,34 @@ Future<Database> getPointsDatabase() async{
             $_pointsXpColumnName INTEGER NOT NULL
             )
             ''');
+
+            db.execute('''
+            CREATE TABLE $_streakTableName(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date DATE NOT NULL,
+            streak_count INTEGER NOT NULL,
+            is_completed BOOLEAN NOT NULL
+            )
+            ''');
           }
           catch(e){
             print("ERROR: Creating points DB");
           }
           
+        },
+
+        onUpgrade: (db, oldVersion, newVersion) {
+
+          if(oldVersion == 1 && newVersion==2){
+            db.execute('''
+            CREATE TABLE $_streakTableName(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date DATE NOT NULL,
+            streak_count INTEGER NOT NULL,
+            is_completed BOOLEAN NOT NULL
+            )
+            ''');
+          }
         },
       )
     );
@@ -214,6 +243,15 @@ Future<Database> getPointsDatabase() async{
 
   
 }
+  Future<void> getStreak() async{
+    
+
+  }
+
+  Future<void> addStreak() async{
+
+
+  }
 
 
   Future<void> resetDatabase(String dbNameLocal) async{
