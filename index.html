@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wrk - Turn Your Tasks Into a Game of Growth</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --wrk-blue: rgb(30, 174, 219);
+        }
+        
+        body, html {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc; /*rgba(255, 255, 255, 0.85);*/
+            scroll-behavior: smooth;
+        }
+        
+        .wrk-blue {
+            color: rgb(30, 174, 219);
+        }
+        
+        .wrk-blue-bg {
+            background-color: rgb(30, 174, 219);
+        }
+        
+        .wrk-blue-shadow {
+            box-shadow: 0 0 10px 3px rgba(30, 174, 219, 0.5);
+        }
+        
+        .heading-text {
+            font-size: 3.5rem;
+            font-weight: 750;
+            line-height: 1.2;
+        }
+        
+        .subheading-text {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: rgb(136, 136, 136);
+        }
+        
+        .feature-heading {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .feature-description {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: rgb(136, 136, 136);
+        }
+        
+        .cta-button {
+            background-color: var(--wrk-blue);
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 174, 219, 0.4);
+        }
+        
+        .video-container {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            background-color: rgb(237, 245, 254);
+            color: var(--wrk-blue);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-icon i {
+            font-size: 1.75rem;
+        }
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="bg-blue-400 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Wrk</h1>
+            <nav>
+                <!-- Navigation links could go here -->
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4">
+        <!-- Hero Section -->
+        <section class="py-16 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="heading-text mb-8">
+                    Turn Your Tasks Into a<br>
+                    <span class="wrk-blue">Game of Growth</span>
+                </h1>
+                <p class="subheading-text mb-12">
+                    The productivity system that turns your daily work into XP points,<br>
+                    streaks and personal records.
+                </p>
+                <div class="wrk-blue-shadow inline-block rounded-lg">
+                    <a href = "#join">
+                    <button class="cta-button">
+                        Try out for free
+                    </button>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Video Section -->
+        <section class="py-24 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="heading-text mb-4">See Wrk in Action</h2>
+                <p class="subheading-text mb-12">
+                    A clean, distraction-free interface focused on what matters: your tasks,<br>
+                    your growth.
+                </p>
+                <div class="video-container mx-auto" style="max-width: 800px;">
+                    <div id="player" class="aspect-w-16 aspect-h-9"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-24 text-center">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="heading-text mb-4">Wrk Turns Work Into an Adventure</h2>
+                <p class="subheading-text mb-20">
+                    Productivity reimagined as a personal growth game.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
+                    <!-- Feature 1 -->
+                    <div class="flex flex-col items-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h3 class="feature-heading mb-3">Task Xp</h3>
+                        <p class="feature-description">
+                            Every task you complete<br>
+                            earns you XP points, driving<br>
+                            your productivity score higher<br>
+                            each day.
+                        </p>
+                    </div>
+                    
+                    <!-- Feature 2 -->
+                    <div class="flex flex-col items-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <h3 class="feature-heading mb-3">Visual Calendar</h3>
+                        <p class="feature-description">
+                            Track your daily progress<br>
+                            with a heat-map style calendar
+                            showing your most<br>
+                            productive days.
+                        </p>
+                    </div>
+                    
+                    <!-- Feature 3 -->
+                    <div class="flex flex-col items-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3 class="feature-heading mb-3">Personal Records</h3>
+                        <p class="feature-description">
+                            Beat your own high scores<br>
+                            and celebrate new<br>
+                            productivity records with<br>
+                            achievement badges.
+                        </p>
+                    </div>
+                    
+                    <!-- Feature 4 -->
+                    <div class="flex flex-col items-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-heading mb-3">Streaks System</h3>
+                        <p class="feature-description">
+                            Build momentum with daily<br>
+                            streaks that motivate you to<br>
+                            maintain consistent<br>
+                            productivity.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-20">
+                    <div class="wrk-blue-shadow inline-block rounded-lg">
+                        <a href = "#join">
+                        <button class="cta-button">
+                            Try out for free
+                        </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Section -->
+        <section class="py-24 text-center">
+            <div class="max-w-4xl mx-auto" id = "join">
+                <h2 class="heading-text mb-4">Get The Open Beta and Start Growing with Us!</h2>
+                <p class="subheading-text mb-12">
+                    Join the discord squad to receive the download link and be the first to<br>
+                    try Wrk.
+                </p>
+                <div class="mb-8">
+                    <!-- The GIF -->
+                     <div class="bg-white rounded-xl p-6 shadow-lg inline-block mb-8">
+                     <div class = "center">
+                    <img src = "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNW4wMTJ2ZDZ3Y2J1MzJrbW91eXdiODRkdHV6NDN4dWxpNGhkYmNieiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/cj8ymJo1l2tDjMeZBs/giphy.gif">
+                    </div>
+                    </div>
+                </div>
+                <div class="wrk-blue-shadow inline-block rounded-lg">
+                    <a href = "https://www.youtube.com" target = "_blank">
+                    <button class="cta-button">
+                        Get Download Link
+                    </button>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- YouTube API -->
+    <script>
+        // Load the YouTube IFrame API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Create YouTube player when API is ready
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '450',
+                width: '800',
+                videoId: '5VeJYd-Z_Zc',
+                playerVars: {
+                    'autoplay': 1,
+                    'mute': 1,
+                    'controls': 1,
+                    'showinfo': 0,
+                    'rel': 0,
+                    'loop': 1,
+                    'playlist': '5VeJYd-Z_Zc', // Required for looping
+                    'modestbranding': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        // When player is ready
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+
+        // When player state changes
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                player.playVideo(); // Ensure it keeps playing
+            }
+        }
+    </script>
+</body>
+</html>
