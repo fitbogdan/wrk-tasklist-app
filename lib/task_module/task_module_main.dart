@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+// import 'package:http/http.dart';
 import 'package:wrk/task_module/taskitem.dart';
 import 'package:wrk/services/database_service.dart';
 import 'package:wrk/services/time_service.dart';
@@ -21,7 +21,9 @@ class TaskModuleMain extends StatefulWidget{
 
 class _TaskModuleState extends State<TaskModuleMain>{
 
+  // ignore: unused_field
   static TextStyle heading = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  // ignore: unused_field
   static TextStyle headingNonBold = TextStyle(fontSize: 25, color: Colors.white);
   static TextStyle smallwords = TextStyle(fontSize: 25, fontWeight: FontWeight.bold);
   static TextStyle repsBad = TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.red);
@@ -36,8 +38,11 @@ class _TaskModuleState extends State<TaskModuleMain>{
   String? _task;
   int? _xp;
   int xpTemp = -1;
+  
+  
   int repsTotal = 0;
   bool keepXp = true;
+  late DateTime lastLogin;
 
   List<TaskData> tasks = [];
   List<TaskData> tasksDone = [];
@@ -50,12 +55,41 @@ class _TaskModuleState extends State<TaskModuleMain>{
   void initState() {
     super.initState();
       initAsync();
+
   }
 
   Future<void> initAsync() async{
       await loadTasks();
       await getLast();
+      if(mounted) await resetReps();
       // cleanUp();
+
+  }
+
+  Future<void> resetReps() async{
+    Preferences user = await Preferences.create();
+    
+    String? lastLoginString = user.prefs.getString('lastLogin');
+
+    // print(lastLoginString);
+
+    if(lastLoginString != null){
+
+      // print("entered first if");
+      if(lastLoginString != timeBuildString(DateTime.now())){
+        setState(() {
+          repsTotal = 0;
+        });
+        // print("entered second if");
+      }
+
+      user.prefs.setString('lastLogin', timeBuildString(DateTime.now()));
+    }
+
+    else{
+      user.prefs.setString('lastLogin', timeBuildString(DateTime.now()));
+      // print("entered third if");
+    }
 
   }
 
@@ -101,10 +135,14 @@ class _TaskModuleState extends State<TaskModuleMain>{
         _databaseService.updateTask(tasks[i]);
       }  
 
-    _databaseService.addTask(newTask.content, newTask.xp, newTask.orderIndex, newTask.timeString);
+    await _databaseService.addTask(newTask.content, newTask.xp, newTask.orderIndex, newTask.timeString);
+    
+    await _databaseService.logToFile("Added task: $newTask\n");
 
 
     loadTasks();
+
+    await _databaseService.logToFile("Task list: $tasks\n");
     
   }
 
@@ -153,6 +191,8 @@ class _TaskModuleState extends State<TaskModuleMain>{
 
 
   Future<void> onToggle(TaskData task, int isChecked) async{
+    // await _databaseService.resetDatabase('tasks_db.db');
+    
     if(isChecked == 0){
         tasksDoneCount--;
         repsTotal = (repsTotal - task.xp >= 0 ? repsTotal - task.xp : 0);
@@ -188,7 +228,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
 
       // print(task);
 
-      // await _databaseService.resetDatabase('points_db.db');
+      
       
 
 
@@ -199,12 +239,13 @@ class _TaskModuleState extends State<TaskModuleMain>{
 
       //HERE IS WHERE IT BUGS
       if(task.status == 1){
-        await _databaseService.addXp(task.xp, time, task.id);;
+        await _databaseService.addXp(task.xp, time, task.id);
       }
       
       await _databaseService.updateTask(task);
       loadTasks();
       updateReps();
+      
   }
 
   Future<void> onDelete(int id, TaskData task, int index) async{
@@ -295,20 +336,20 @@ class _TaskModuleState extends State<TaskModuleMain>{
 
           _addTaskButton(),
 //------------------DEV MODE ONLY:----------------------------------------------
-          SizedBox(width: 10),
-          Text(
-            "Dev tools:",
-            style: TextStyle(fontSize: 15),
-          ),
-          SizedBox(width: 10),
-          printButton(), SizedBox(width: 10), randomTaskButton(), SizedBox(width: 10),
-          FloatingActionButton(onPressed:() {
-            // ignore: avoid_print
-            print("Width: $width;  Height: $height; ");
-          },
-          backgroundColor: Colors.deepPurple,
-          child: Icon(Icons.laptop),
-          )
+          // SizedBox(width: 10),
+          // Text(
+          //   "Dev tools:",
+          //   style: TextStyle(fontSize: 15),
+          // ),
+          // SizedBox(width: 10),
+          // printButton(), SizedBox(width: 10), randomTaskButton(), SizedBox(width: 10),
+          // FloatingActionButton(onPressed:() {
+          //   // ignore: avoid_print
+          //   print("Width: $width;  Height: $height; ");
+          // },
+          // backgroundColor: Colors.deepPurple,
+          // child: Icon(Icons.laptop),
+          // )
 //----------------------------Dev end----------------------------------------------
 ],
   ),
@@ -793,21 +834,30 @@ class _TaskModuleState extends State<TaskModuleMain>{
                       print("${tasks[i].content} ${tasks[i].orderIndex}");
                     }
 
-                    /*final random = Random();
-                    DateTime start = DateTime(2025, 3, 1);
+                    // _databaseService.resetDatabase("points_db.db");
 
+                    // final random = Random();
+                    // DateTime start = DateTime(2025, 5, 5);
+                    // int id = tasks.length+67;
+                    // final db = await _databaseService.pointsDatabase;
 
+                    // await db.transaction((txn) async {
+                    //   DateTime startCopy = start;
+                    //   for(int i = 0; i < 6; i++){
+                    //     int randomInt = random.nextInt(11);
+                    //     bool randomBool = true;//random.nextBool();
+                    //     startCopy = startCopy.add(Duration(days: 1));
+
+                    //     if(randomBool == true){
+                    //       await _databaseService.addXp(randomInt, timeBuildString(startCopy), id, txn: txn);
+                    //       id++;
+                    //     }
+                    // }
+
+                    // },);
                     
 
-                    for(int i = 0; i < 76; i++){
-                        int randomInt = random.nextInt(11);
-                        bool randomBool = random.nextBool();
-                        start = start.add(Duration(days: 1));
-
-                        if(randomBool == true){
-                          await _databaseService.addXp(randomInt, timeBuildString(start), tasks.length+1);
-                        }
-                    }*/
+                    
 
                   },
                   child: Icon(Icons.keyboard),

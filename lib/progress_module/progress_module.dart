@@ -23,11 +23,11 @@ class PointsData{
   }
 }
 
-class textInfo{
+class TextInfo{
   int day;
   int points;
 
-  textInfo({
+  TextInfo({
     required this.day,
     required this.points,
   });
@@ -69,7 +69,7 @@ class _ProgressModuleState extends State<ProgressModule>{
 
   List<PointsData> history = [];
   late Map<String, dynamic> m = {};
-  List<textInfo> displayHistory = [];
+  List<TextInfo> displayHistory = [];
   List<String> weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri","Sat","Sun",];
   int month = DateTime.now().month;
 
@@ -136,31 +136,6 @@ class _ProgressModuleState extends State<ProgressModule>{
 
       return total;
   }
-  
-  List<Text> showThisWeek() {
-    DateTime now = DateTime.now();
-    DateTime ago = now.subtract(Duration(days: 7));
-    List<Text> result = [];
-
-    for(int i = 0; i<=7; i++){
-      DateTime newAgo = ago.add(Duration(days: i));
-      String newAgoString = timeBuildString(newAgo);
-      String readableString = readableTime(newAgo);
-
-      if(m.containsKey(newAgoString)){
-        String str = "$readableString - ${m[newAgoString]} reps!";
-        result.insert(i, Text(str));
-        print(str);
-      }
-
-      else{
-        String str = "$readableString - 0 reps!";
-        result.insert(i, Text(str));
-        print(str);
-      }
-    }
-    return result;
-  }
 
   Future<void> showThisMonthProgress(int month) async{
     DateTime now = DateTime.now();
@@ -202,17 +177,17 @@ class _ProgressModuleState extends State<ProgressModule>{
       }
       firstDay = firstDay.add(Duration(days: 1));
     }
-    List<textInfo> output = [];
+    List<TextInfo> output = [];
     for(int i = 0; i<count; i++){
-      output.insert(i, textInfo(day: result[i].day, points: result[i].points));
+      output.insert(i, TextInfo(day: result[i].day, points: result[i].points));
 
-      //textInfo(days: result[i].day, points: result[i].points)
+      //TextInfo(days: result[i].day, points: result[i].points)
 
       // Text("day: ${result[i].day}, points: ${result[i].points}")
     }
 
 
-    print(result);
+    // print(result);
     
     setState(() {
       displayHistory = output;
@@ -223,7 +198,7 @@ class _ProgressModuleState extends State<ProgressModule>{
   
   int totalRepsThisMonth(int month){
 
-    //await List<textInfo> v = getThisMonthProgress(month);
+    //await List<TextInfo> v = getThisMonthProgress(month);
 
     if(displayHistory.length > 1){
         int i = 0;
@@ -261,7 +236,6 @@ class _ProgressModuleState extends State<ProgressModule>{
           children: [
 
             Container(
-              //TODO: Make size variable
               width: width * (418/2560),
               color: const Color.fromARGB(58, 90, 162, 255),
               child: ListView(
@@ -499,6 +473,9 @@ class _ProgressModuleState extends State<ProgressModule>{
   Container dayItem(int i, bool isThisMonth) {
     return Container(
               decoration: BoxDecoration(
+                color: displayHistory[i].points != 0 && isThisMonth == true
+                             ? const Color.fromARGB(255, 0, 255, 8).withValues(alpha: 0.2)
+                             : Colors.transparent,
                 border: Border(
                   right: BorderSide(
                     color: Colors.black,
@@ -538,14 +515,14 @@ class _ProgressModuleState extends State<ProgressModule>{
                         width: 150,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: displayHistory[i].points != 0 && isThisMonth == true
-                            ? const Color.fromARGB(255, 0, 255, 8).withValues(alpha: 0.2)
-                            : Colors.transparent,
+                          // color: displayHistory[i].points != 0 && isThisMonth == true
+                          //   ? const Color.fromARGB(255, 0, 255, 8).withValues(alpha: 0.2)
+                          //   : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: [
                             BoxShadow(
                             color: displayHistory[i].points != 0 && isThisMonth == true
-                            ? const Color.fromARGB(255, 0, 255, 8).withValues(alpha: 0.7)
+                            ? Colors.transparent//const Color.fromARGB(255, 0, 255, 8).withValues(alpha: 0.7)
                             : Colors.transparent,
                             spreadRadius: 5,
                             blurRadius: 20,

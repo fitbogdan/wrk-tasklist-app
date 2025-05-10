@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:wrk/services/time_service.dart';
 import '../task_module/taskitem.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -43,7 +45,9 @@ class DatabaseService{
 
   //STREAK DB NAMES:
   final String _streakTableName = "streak_table";
+  // ignore: unused_field
   final String _streakIdColumnName = "id";
+  // ignore: unused_field
   final String _streakDateColumnName = "date";
   
 
@@ -90,7 +94,7 @@ class DatabaseService{
             try {
               await db.execute('''
                 CREATE TABLE $_tasksTableName (
-                  $_tasksIdColumnName INTEGER PRIMARY KEY,
+                  $_tasksIdColumnName INTEGER PRIMARY KEY AUTOINCREMENT,
                   $_tasksContentColumnName TEXT NOT NULL,
                   $_tasksStatusColumnName INTEGER NOT NULL,
                   $_tasksXpColumnName INTEGER NOT NULL,
@@ -175,6 +179,13 @@ class DatabaseService{
     rethrow;
   }
 }
+Future<void> logToFile(String message) async{
+  final dir = await getApplicationDocumentsDirectory();
+  // print(dir);
+  final file = File('${dir.path}/log.txt');
+  final timestamp = timeBuildString(DateTime.now());
+  await file.writeAsString("$timestamp: $message\n", mode: FileMode.append);
+}
 
 Future<Database> getPointsDatabase() async{
 
@@ -211,7 +222,7 @@ Future<Database> getPointsDatabase() async{
             ''');
           }
           catch(e){
-            print("ERROR: Creating points DB");
+            // print("ERROR: Creating points DB");
           }
           
         },
@@ -261,13 +272,31 @@ Future<Database> getPointsDatabase() async{
   }
 
   Future<void> addXp(int points, String date, int id, {Transaction? txn}) async{
-    final db = txn ??  await pointsDatabase;
-    await db.insert(
+
+    print("Using transaction: ${txn != null}");
+
+    // final Database db;
+    if(txn != null){
+      await txn.insert(
       _pointsTableName, {
       _pointsIdColumnName: id,
       _pointsDateColumnName: date,
       _pointsXpColumnName: points
     });
+    }
+
+    else{
+      final Database db = await pointsDatabase;
+      await db.insert(
+      _pointsTableName, {
+      _pointsIdColumnName: id,
+      _pointsDateColumnName: date,
+      _pointsXpColumnName: points
+    });
+    }
+
+
+    
   }
 
   Future<void> deletePointEntry(int id, {Transaction? txn}) async{
@@ -307,7 +336,7 @@ Future<Database> getPointsDatabase() async{
 
     //print(points);
 
-  //TODO: FIX EXCEPTION ---- The problem is that I am not pulling the ID with my SQL
+  
 
     return points.map(
       (point) => PointsData(
@@ -317,7 +346,7 @@ Future<Database> getPointsDatabase() async{
       )).toList();
   } 
 
-  void addTask(String content, int xp, int index, String time) async{
+  Future<void> addTask(String content, int xp, int index, String time) async{
     final db = await database; //Getting a refference to the DB
     await db.insert(//Just an insert function!
       _tasksTableName, {
