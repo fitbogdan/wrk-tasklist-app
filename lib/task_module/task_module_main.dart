@@ -62,6 +62,7 @@ class _TaskModuleState extends State<TaskModuleMain>{
       await loadTasks();
       await getLast();
       if(mounted) await resetReps();
+      // _databaseService.resetDatabase("tasks");
       // cleanUp();
 
   }
@@ -138,7 +139,6 @@ class _TaskModuleState extends State<TaskModuleMain>{
     await _databaseService.addTask(newTask.content, newTask.xp, newTask.orderIndex, newTask.timeString);
     
     await _databaseService.logToFile("Added task: $newTask\n");
-
 
     loadTasks();
 

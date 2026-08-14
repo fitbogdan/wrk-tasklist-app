@@ -79,6 +79,7 @@ class _ProgressModuleState extends State<ProgressModule>{
     super.initState();
     //getDates();
     //print(m);
+    
     showThisMonthProgress(DateTime.now().month);
     
   }

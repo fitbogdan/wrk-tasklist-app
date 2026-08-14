@@ -1,0 +1,2 @@
+Termenul general din progresie aritmetica: a = a1 + (n-1)*r
+Suma __,,__: S = (a1+an)*n/2
